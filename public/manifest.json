@@ -1,0 +1,17 @@
+{
+  "name": "Plugin Wrapper",
+  "id": "940637991818756434",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "index.html",
+  "menu": [
+    {
+      "name": "Example Command",
+      "command": "exampleCommand"
+    },
+    {
+      "name": "Example Command Two",
+      "command": "exampleCommandTwo"
+    }
+  ]
+}
