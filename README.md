@@ -2,6 +2,24 @@
 
 Plugma is a small framework for creating Figma Plugins. It provides some syntastic sugar for making it easier to develop and maintain plugins.
 
+## Setup
+
+Install plugma as a dev dependency.
+
+```bash
+npm install plugma --save-dev
+```
+
+Connect to your project
+
+```js
+import plugma from 'plugma'
+import plugin from './src/plugin'
+
+
+plugma(plugin)
+```
+
 ## Creating a plugin
 
 To get started, plugins are created in the following format.
