@@ -101,8 +101,13 @@ export default [
 		},
 		plugins: [
 			typescript(),
-			commonjs(),
 			json(),
+			commonjs({
+				// requireReturnsDefault: true,
+				// esmExternals: true,
+				// extensions: [".js", ".json"]
+			}),
+
 			production && terser()
 		]
 	}];

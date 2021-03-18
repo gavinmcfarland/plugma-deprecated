@@ -100,7 +100,8 @@ export default [{
 	},
 	plugins: [
 		typescript(),
-		commonjs(),
+		// commonjs(),
+		resolve(),
 		json(),
 		production && terser()
 	]

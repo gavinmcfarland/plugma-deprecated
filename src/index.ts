@@ -1,30 +1,34 @@
 
 // TODO: Check package from working directory
 // TODO: Check versions from working directory
+// TODO: How to fix issue of referenceing file when used as depency
 
-import pkg from '../package.json';
+// import pkg from '../package.json';
 import versionHistory from './versions.json';
-import semver from 'semver';
+// import semver from 'semver';
 import fs from 'fs'
 
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
 // })
 
-// const file = require("../package.json")
+// const file = require("package.json")
 // console.log(file)
 
-function updateAvailable() {
-	var currentVersion = figma.root.getPluginData("pluginVersion") || pkg.version;
-	var newVersion = pkg.version;
+// function updateAvailable() {
+// 	var currentVersion = figma.root.getPluginData("pluginVersion") || pkg.version;
+// 	var newVersion = pkg.version;
 
-	if (semver.gt(newVersion, currentVersion)) {
-		return true
-	}
-	else {
-		false
-	}
-}
+// 	if (semver.gt(newVersion, currentVersion)) {
+// 		return true
+// 	}
+// 	else {
+// 		false
+// 	}
+// }
+
+// const pkg = require("./package.json")
+// console.log(pkg)
 
 export default function plugma(plugin) {
 	var pluginState: any = {
@@ -33,7 +37,7 @@ export default function plugma(plugin) {
 		ui: {}
 	}
 
-	pluginState.updateAvailable = updateAvailable()
+	// pluginState.updateAvailable = updateAvailable()
 
 
 	var eventListeners = []
