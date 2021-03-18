@@ -10,22 +10,15 @@ Install plugma as a dev dependency.
 npm install plugma --save-dev
 ```
 
-Connect to your project
-
-```js
-import plugma from 'plugma'
-import plugin from './src/plugin'
-
-
-plugma(plugin)
-```
-
 ## Creating a plugin
 
 To get started, plugins are created in the following format.
 
 ```js
-export default (plugin) => {
+// code.ts
+import plugma from 'plugma'
+
+plugma((plugin) => {
 
     plugin.ui = {
 		html: __html__,
@@ -47,7 +40,7 @@ export default (plugin) => {
 
 		}
 	}
-}
+})
 ```
 
 Figma plugins either run as a main function with no menu commands, or with one or more menu commands. Therefore the Plugma framework expects either an anonymous function, or one or more named functions.
