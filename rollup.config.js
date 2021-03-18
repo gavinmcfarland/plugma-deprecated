@@ -92,9 +92,9 @@ export default [{
 	}
 },
 {
-	input: 'src/code.ts',
+	input: 'src/index.ts',
 	output: {
-		file: 'public/code.js',
+		file: 'dist/index.js',
 		format: 'cjs',
 		name: 'code'
 	},

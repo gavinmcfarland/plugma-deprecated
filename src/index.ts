@@ -59,38 +59,41 @@ export default function plugma(plugin) {
 	// 	pluginState.ui.page = pageName[0]
 	// }
 
-	console.log("pageName", pluginState.ui.page)
+	// console.log("pageName", pluginState.ui.page)
 
 	var pluginObject = Object.assign({}, pluginState, { commands: pluginCommands })
 
-	for (let [key, value] of Object.entries(pluginCommands)) {
-		// If command exists in manifest
-		if (figma.command === key) {
-			// Pass default page for ui
-			if (!pageMannuallySet) {
-				pluginState.ui.page = key
+	if (pluginCommands) {
+		for (let [key, value] of Object.entries(pluginCommands)) {
+			// If command exists in manifest
+			if (figma.command === key) {
+				// Pass default page for ui
+				if (!pageMannuallySet) {
+					pluginState.ui.page = key
+				}
+
+
+
+
+
+				// Override default page name if set
+				// if (pageName[0]) {
+				// 	pluginState.ui.page = pageName[0]
+				// }
+
+				// Call function for that command
+				value(pluginState)
+
+				// Show UI?
+				if (pluginState.ui.open) {
+					console.log("open?")
+					figma.showUI(pluginState.ui.html)
+				}
+
 			}
-
-
-
-
-
-			// Override default page name if set
-			// if (pageName[0]) {
-			// 	pluginState.ui.page = pageName[0]
-			// }
-
-			// Call function for that command
-			value(pluginState)
-
-			// Show UI?
-			if (pluginState.ui.open) {
-				console.log("open?")
-				figma.showUI(pluginState.ui.html)
-			}
-
 		}
 	}
+
 
 	figma.ui.onmessage = message => {
 		for (let eventListener of eventListeners) {
