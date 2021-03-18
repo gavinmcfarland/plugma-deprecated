@@ -34,7 +34,7 @@ function serve() {
 }
 
 export default [{
-	input: 'src/main.ts',
+	input: 'frontend/main.ts',
 	output: {
 		sourcemap: true,
 		format: 'iife',
@@ -67,10 +67,10 @@ export default [{
 		typescript({
 			sourceMap: !production,
 			inlineSources: !production,
-			tsconfig: "./src/tsconfig.json"
+			tsconfig: "./frontend/tsconfig.json"
 		}),
 		htmlBundle({
-			template: 'src/template.html',
+			template: 'frontend/template.html',
 			target: 'public/index.html',
 			inline: true
 		}),
@@ -92,7 +92,7 @@ export default [{
 	}
 },
 {
-	input: 'figma/code.ts',
+	input: 'src/code.ts',
 	output: {
 		file: 'public/code.js',
 		format: 'cjs',
