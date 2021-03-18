@@ -1,7 +1,18 @@
 
+// TODO: Check package from working directory
+// TODO: Check versions from working directory
+
 import pkg from '../package.json';
 import versionHistory from './versions.json';
 import semver from 'semver';
+import fs from 'fs'
+
+// fs.readFile("../package.json", (err, data) => {
+// 	console.log(err, data)
+// })
+
+// const file = require("../package.json")
+// console.log(file)
 
 function updateAvailable() {
 	var currentVersion = figma.root.getPluginData("pluginVersion") || pkg.version;
