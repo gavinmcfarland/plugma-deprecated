@@ -9,18 +9,18 @@ var plugin = (plugin) => {
     if (plugin.updateAvailable) {
         plugin.setStartPage("whatsNew");
     }
+    plugin.update(({ version, changes }) => {
+        console.log(version, changes);
+    });
     plugin.on('buttonPressed', () => {
         console.log("Create table node");
     });
     return {
-        'exampleCommand': ({ ui }) => {
-            ui.width = 250;
-            ui.height = 500;
+        'createRectangle': () => {
+            figma.createRectangle();
         },
-        'exampleCommandTwo': ({ ui }) => {
-            ui.visible = true;
-            ui.open = true;
-            console.log(ui.page);
+        'settings': ({ ui }) => {
+            ui.show();
         }
     };
 };
@@ -68,6 +68,29 @@ var pkg = {
 	scripts: scripts,
 	devDependencies: devDependencies,
 	dependencies: dependencies
+};
+
+var versionHistory = {
+	"1.1.0": [
+	{
+		type: "new",
+		description: "",
+		action: "upgradeTables"
+	}
+],
+	"1.0.1": [
+	{
+		fix: "Description"
+	}
+],
+	"1.0.0": [
+	{
+		"new": "Description"
+	},
+	{
+		fix: "Description"
+	}
+]
 };
 
 function createCommonjsModule(fn) {
@@ -2740,7 +2763,7 @@ function updateAvailable() {
         return true;
     }
 }
-function pluginWrapper() {
+function plugma(plugin) {
     var pluginState = {
         version: pkg.version,
         updateAvailable: false,
@@ -2756,6 +2779,16 @@ function pluginWrapper() {
     pluginState.setStartPage = (name) => {
         pluginState.ui.page = name;
         pageMannuallySet = true;
+    };
+    pluginState.update = (callback) => {
+        for (let [version, changes] of Object.entries(versionHistory)) {
+            if (version === pkg.version) {
+                // for (let i = 0; i < changes.length; i++) {
+                // 	var change = changes[i]
+                // }
+                callback({ version, changes });
+            }
+        }
     };
     var pluginCommands = plugin(pluginState);
     // // Override default page name if set
@@ -2793,5 +2826,5 @@ function pluginWrapper() {
     };
     // console.log(pluginObject)
 }
-pluginWrapper();
-console.log("Hello Figma");
+
+plugma(plugin);

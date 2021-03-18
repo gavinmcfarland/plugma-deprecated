@@ -10,20 +10,20 @@ export default (plugin) => {
 		plugin.setStartPage("whatsNew")
 	}
 
+	plugin.update(({ version, changes }) => {
+		console.log(version, changes)
+	})
+
 	plugin.on('buttonPressed', () => {
 		console.log("Create table node")
 	})
 
 	return {
-		'exampleCommand': ({ ui }) => {
-			ui.width = 250
-			ui.height = 500
+		'createRectangle': () => {
+			figma.createRectangle()
 		},
-		'exampleCommandTwo': ({ ui }) => {
-			ui.visible = true
-			ui.open = true
-			console.log(ui.page)
-
+		'settings': ({ ui }) => {
+			ui.show()
 		}
 	}
 }

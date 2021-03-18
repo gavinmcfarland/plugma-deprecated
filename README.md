@@ -1,6 +1,6 @@
-# Poncho
+# Plugma
 
-Poncho is a small framework for creating Figma Plugins. It provides some syntastic sugar for making it easier to develop and maintain plugins.
+Plugma is a small framework for creating Figma Plugins. It provides some syntastic sugar for making it easier to develop and maintain plugins.
 
 ## Creating a plugin
 
@@ -8,6 +8,18 @@ To get started, plugins are created in the following format.
 
 ```js
 export default (plugin) => {
+
+    plugin.ui = {
+		html: __html__,
+		width: 250,
+		height: 400
+	}
+
+    plugin.update((version) => {
+        if (version.confirm) {
+            
+        } 
+    })
 
 	return {
 		'createRectangle': () => {
@@ -20,7 +32,7 @@ export default (plugin) => {
 }
 ```
 
-Figma plugins either run as a main function with no menu commands, or with one or more menu commands. Therefore the Poncho framework expects either an anonymous function, or one or more named functions.
+Figma plugins either run as a main function with no menu commands, or with one or more menu commands. Therefore the Plugma framework expects either an anonymous function, or one or more named functions.
 
 ## The `plugin` reference
 
@@ -38,7 +50,7 @@ plugin.ui {
 
 ## Commands
 
-With Poncho, commands can automatically show and post data for UIs without much extra setup. Each command has access to the state of the plugin, including the name of the command used to start it.
+With Plugma, commands can automatically show and post data for UIs without much extra setup. Each command has access to the state of the plugin, including the name of the command used to start it.
 
 ```js
 'createRectangle': ({ui, command, version, data}) => {
@@ -56,9 +68,42 @@ plugin.on('buttonPressed', () => {
 })
 ```
 
-## Version
+## Version Management
 
-Poncho tries to make managing version control of your plugin a little easier.
+Pulgma can automatically keep track of each change by keeping a version log.
+
+```bash
+plugma version patch
+# Version updated to 1.0.2
+```
+
+Include actions for certain versions/changes?
+
+```bash
+plugma version patch -a upgradeRectangles
+```
+
+Show version log
+
+```bash
+plugma version major -s
+```
+
+**use cases**
+
+1. Want to show changes every major version
+2. Want to show certain features available with certain releases
+3. Want to patch or upgrade from certain versions
+
+## Configure
+
+```js
+// plugma.config.js
+
+export default {
+    whatsNewUI: true
+}
+```
 
 
 ## Devlopment
