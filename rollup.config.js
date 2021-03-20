@@ -8,6 +8,7 @@ import typescript from '@rollup/plugin-typescript';
 import htmlBundle from 'rollup-plugin-html-bundle';
 import postcss from 'rollup-plugin-postcss';
 import json from '@rollup/plugin-json'
+import replace from '@rollup/plugin-replace';
 // import autoprefixer from 'autoprefixer';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -100,7 +101,14 @@ export default [{
 	},
 	plugins: [
 		typescript(),
-		// commonjs(),
+		// !production && replace({
+		// 	'process.env.VERSIONS_PATH': JSON.stringify('./package.json'),
+		// 	'process.env.PKG_PATH': JSON.stringify('./src/versions.json')
+		// }),
+		// replace({
+		// 	'__pkgFile__': JSON.stringify('./package.json'),
+		// 	'__versionsFile__': JSON.stringify('./package.json')
+		// }),
 		resolve(),
 		json(),
 		production && terser()

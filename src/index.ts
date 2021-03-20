@@ -4,9 +4,13 @@
 // TODO: How to fix issue of referenceing file when used as depency
 
 // import pkg from '../package.json';
-import versionHistory from './versions.json';
+// import versionHistory from './versions.json';
 // import semver from 'semver';
-import fs from 'fs'
+
+
+
+var versionHistory = require(process.env.VERSIONS_PATH);
+var pkg = require(process.env.PKG_PATH);
 
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
@@ -27,8 +31,7 @@ import fs from 'fs'
 // 	}
 // }
 
-// const pkg = require("./package.json")
-// console.log(pkg)
+
 
 export default function plugma(plugin) {
 	var pluginState: any = {
@@ -53,17 +56,17 @@ export default function plugma(plugin) {
 		pageMannuallySet = true
 	}
 
-	pluginState.update = (callback) => {
-		for (let [version, changes] of Object.entries(versionHistory)) {
-			if (version === pkg.version) {
-				// for (let i = 0; i < changes.length; i++) {
-				// 	var change = changes[i]
+	// pluginState.update = (callback) => {
+	// 	for (let [version, changes] of Object.entries(versionHistory)) {
+	// 		if (version === pkg.version) {
+	// 			// for (let i = 0; i < changes.length; i++) {
+	// 			// 	var change = changes[i]
 
-				// }
-				callback({ version, changes })
-			}
-		}
-	}
+	// 			// }
+	// 			callback({ version, changes })
+	// 		}
+	// 	}
+	// }
 
 
 
@@ -87,10 +90,6 @@ export default function plugma(plugin) {
 					pluginState.ui.page = key
 				}
 
-
-
-
-
 				// Override default page name if set
 				// if (pageName[0]) {
 				// 	pluginState.ui.page = pageName[0]
@@ -113,7 +112,7 @@ export default function plugma(plugin) {
 	figma.ui.onmessage = message => {
 		for (let eventListener of eventListeners) {
 			// console.log(message)
-			if (message.type === eventListener.type) eventListener.callback(message.data);
+			if (message.type === eventListener.type) eventListener.callback(message);
 		}
 	};
 

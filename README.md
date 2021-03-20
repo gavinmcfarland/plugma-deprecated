@@ -10,6 +10,23 @@ Install plugma as a dev dependency.
 npm install plugma --save-dev
 ```
 
+## Using Rollup
+
+For rollup, you'll need to replace the following
+
+```js
+// ...
+plugins: [
+    nodeResolve(),
+    json(),
+    replace({
+        'process.env.VERSIONS_PATH': JSON.stringify('./package.json'),
+        'process.env.PKG_PATH': JSON.stringify('./versions.json')
+    })
+    // ...
+]
+```
+
 ## Creating a plugin
 
 To get started, plugins are created in the following format.

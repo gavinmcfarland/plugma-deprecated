@@ -1,6 +1,8 @@
 // import svelte from 'rollup-plugin-svelte';
+import globals from 'rollup-plugin-node-globals';
 import commonjs from '@rollup/plugin-commonjs';
-// import resolve from '@rollup/plugin-node-resolve';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+// import nodeResolve from '@rollup/plugin-node-resolve';
 // import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 // import sveltePreprocess from 'svelte-preprocess';
@@ -8,6 +10,8 @@ import typescript from '@rollup/plugin-typescript';
 // import htmlBundle from 'rollup-plugin-html-bundle';
 // import postcss from 'rollup-plugin-postcss';
 import json from '@rollup/plugin-json'
+import nodeResolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
 // import autoprefixer from 'autoprefixer';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -101,12 +105,19 @@ export default [
 		},
 		plugins: [
 			typescript(),
+
+			// nodePolyfills(),
+			nodeResolve(),
 			json(),
-			commonjs({
-				// requireReturnsDefault: true,
-				// esmExternals: true,
-				// extensions: [".js", ".json"]
+			replace({
+				'process.env.VERSIONS_PATH': JSON.stringify('./versions.json'),
+				'process.env.PKG_PATH': JSON.stringify('./package.json')
 			}),
+			commonjs(),
+
+			// globals(),
+
+
 
 			production && terser()
 		]
