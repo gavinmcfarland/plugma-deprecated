@@ -42,6 +42,12 @@ dist((plugin) => {
         const nodes = [];
         for (let i = 0; i < msg.count; i++) {
             const rect = figma.createRectangle();
+rect.setPluginData("version", "1.0.0")
+rect.setPluginData("version", "1.0.0")
+            const rect2 = figma.createRectangle();
+rect2.setPluginData("version", "1.0.0")
+rect2.setPluginData("version", "1.0.0")
+            console.log(rect2);
             rect.x = i * 150;
             rect.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
             figma.currentPage.appendChild(rect);

@@ -1,35 +1,15 @@
+<p align="center">
+    <a href="https://www.npmjs.com/package/plugma"><img src="https://img.shields.io/npm/v/plugma.svg"></a>
+    <a href="https://travis-ci.org/limitlessloop/plugma"><img src="https://img.shields.io/travis/limitlessloop/plugma.svg"></a>  
+</p>
+
 # Plugma
 
-Plugma is a small framework for creating Figma Plugins. It provides some syntastic sugar for making it easier to develop and maintain plugins.
+Plugma is a small framework for creating Figma Plugins. It provides some features and syntastic sugar for making it easier to develop and maintain plugins.
 
-## Setup
+## Example
 
-Install plugma as a dev dependency.
-
-```bash
-npm install plugma --save-dev
-```
-
-## Using Rollup
-
-For rollup, you'll need to replace the following
-
-```js
-// ...
-plugins: [
-    nodeResolve(),
-    json(),
-    replace({
-        'process.env.VERSIONS_PATH': JSON.stringify('./package.json'),
-        'process.env.PKG_PATH': JSON.stringify('./versions.json')
-    })
-    // ...
-]
-```
-
-## Creating a plugin
-
-To get started, plugins are created in the following format.
+Plugins are created using the following format.
 
 ```js
 // code.ts
@@ -43,26 +23,20 @@ plugma((plugin) => {
 		height: 400
 	}
 
-    plugin.update((version) => {
-        if (version.confirm) {
-            
-        } 
+    plugin.on('buttonPressed', () => {
+
     })
 
 	return {
-		'createRectangle': () => {
+        'createRectangle': () => {
 
-		},
-		'createCircle': () => {
+        },
+        'createCircle': () => {
 
-		}
+        }
 	}
 })
 ```
-
-Figma plugins either run as a main function with no menu commands, or with one or more menu commands. Therefore the Plugma framework expects either an anonymous function, or one or more named functions.
-
-## The `plugin` reference
 
 The framework provides a `plugin` reference which gives you the state of the `plugin` at any given time. This is useful to keep consistancey across different commands. If you ever need to make an exception, you can change the state of the plugin per command.
 
@@ -82,13 +56,13 @@ With Plugma, commands can automatically show and post data for UIs without much 
 
 ```js
 'createRectangle': ({ui, command, version, data}) => {
-    ui.show()
+    ui.show(data)
 },
 ```
 
-## Events
+## Message Handling
 
-The plugin can listen for events from the UI with `plugin.on()`.
+There is a simple method for listening for messages from the UI using `plugin.on()`.
 
 ```js
 plugin.on('buttonPressed', () => {
@@ -98,7 +72,7 @@ plugin.on('buttonPressed', () => {
 
 ## Version Management
 
-Pulgma can automatically keep track of each change by keeping a version log.
+Not only does Plugma make it easier to communicate with your users about new features by keeping a version log, but it also makes it easy for you to target and make upgrades to nodes created by previous versions of your plugin.
 
 ```bash
 plugma version patch
@@ -148,4 +122,29 @@ To develop:
 
 ```bash
 npm run dev
+```
+
+## Setup
+
+Install plugma as a dev dependency.
+
+```bash
+npm install plugma --save-dev
+```
+
+## Using Rollup
+
+For rollup, you'll need to replace the following
+
+```js
+// ...
+plugins: [
+    nodeResolve(),
+    json(),
+    replace({
+        'process.env.VERSIONS_PATH': JSON.stringify('./package.json'),
+        'process.env.PKG_PATH': JSON.stringify('./versions.json')
+    })
+    // ...
+]
 ```
