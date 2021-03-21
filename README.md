@@ -9,34 +9,52 @@ Plugma is a small framework for creating Figma Plugins. It provides some feature
 
 ## Example
 
-Plugins are created using the following format.
+Below is an example of how plugins are created using plugma.
 
 ```js
 // code.ts
+
 import plugma from 'plugma'
 
 plugma((plugin) => {
 
     plugin.ui = {
-		html: __html__,
-		width: 250,
-		height: 400
-	}
+        html: __html__,
+        width: 250,
+        height: 400
+    }
 
-    plugin.on('buttonPressed', () => {
-
-    })
-
-	return {
-        'createRectangle': () => {
-
+    return {
+        command: {
+            'createRectangle': ({data}) => {
+                ui.show(data)
+            }
         },
-        'createCircle': () => {
-
+        on: {
+            'createRectangle': () => {
+                const nodes: SceneNode[] = [];
+                for (let i = 0; i < msg.count; i++) {
+                    const rect = figma.createRectangle();
+                    const rect2 = figma.createRectangle()
+                    console.log(rect2);
+                    rect.x = i * 150;
+                    rect.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
+                    figma.currentPage.appendChild(rect);
+                    nodes.push(rect);
+                }
+                figma.currentPage.selection = nodes;
+                figma.viewport.scrollAndZoomIntoView(nodes);
+                figma.closePlugin();
+            },
+            'cancel': () => {
+                figma.closePlugin();
+            }
         }
-	}
+    }
 })
 ```
+
+## State Managment
 
 The framework provides a `plugin` reference which gives you the state of the `plugin` at any given time. This is useful to keep consistancey across different commands. If you ever need to make an exception, you can change the state of the plugin per command.
 
@@ -72,30 +90,13 @@ plugin.on('buttonPressed', () => {
 
 ## Version Management
 
-Not only does Plugma make it easier to communicate with your users about new features by keeping a version log, but it also makes it easy for you to target and make upgrades to nodes created by previous versions of your plugin.
+Using a CLI plugma makes it easy to communicate new features with your users by keeping a version log. It automatically adds version data so you can target and make upgrades to documents and nodes created with previous versions of your plugin. Plugma does this by injecting code on build to set plugin data.
 
 ```bash
-plugma version patch
-# Version updated to 1.0.2
+plugma version [patch|minor|major]
 ```
 
-Include actions for certain versions/changes?
 
-```bash
-plugma version patch -a upgradeRectangles
-```
-
-Show version log
-
-```bash
-plugma version major -s
-```
-
-**use cases**
-
-1. Want to show changes every major version
-2. Want to show certain features available with certain releases
-3. Want to patch or upgrade from certain versions
 
 ## Configure
 

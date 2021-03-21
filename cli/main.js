@@ -3,11 +3,6 @@ import fs from 'fs'
 import ncp from 'ncp'
 import path from 'path'
 import { promisify } from 'util'
-import { buildPostCSS } from '../bin/index'
-import postcss from 'postcss'
-import atImport from 'postcss-import'
-import customSelectors from 'postcss-custom-selectors'
-import extend from 'postcss-extend-rule'
 
 const access = promisify(fs.access)
 const copy = promisify(ncp)
@@ -87,4 +82,14 @@ export async function createProject(options) {
 
 	console.log('%s Blank theme config created', chalk.green.bold('DONE'))
 	return true
+}
+
+
+
+
+
+
+// Function which adds new semver to versions file
+export async function addVersion(options) {
+
 }
