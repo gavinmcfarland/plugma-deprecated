@@ -9,7 +9,7 @@ Plugma is a small framework for making it easier to develop and maintain Figma P
 
 ## Features
 - Convenient methods for message handling, menu commands, showing and posting to UI and more
-- A single reference for managing plugin state across multiple commands
+- A single reference for managing plugin state more easily throughout your code
 - Automatic version management so you can upgrade documents and nodes created by past versions of your plugin
 
 ## Example
