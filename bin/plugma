@@ -1,4 +1,9 @@
 #! /usr/bin/env node
 
-require = require('esm')(module /*, options */);
-require('../cli/cli').cli(process.argv);
+const build = require("../dist/build.js")
+
+build()
+// console.log("hello")
+
+// require = require('esm')(module /*, options */);
+// require('../cli/cli').cli(process.argv);
