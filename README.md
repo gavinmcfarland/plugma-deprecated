@@ -74,12 +74,12 @@ plugin.ui {
 
 ## Menu Commands
 
-With Plugma, commands can automatically show and post data for UIs without much extra setup. Each command has access to the state of the plugin, including the name of the command used to start it.
+Simplified developer experience for managing commands. Commands can automatically show and post data for UIs. Each command has access to the state of the plugin, including the name of the command used to start it.
 
 ```js
-'createRectangle': ({ui, command, version, data}) => {
+plugin.command('createRectangle', ({ui, command, version, data}) => {
     ui.show(data)
-},
+})
 ```
 
 ## Message Handling
