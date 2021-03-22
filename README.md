@@ -8,7 +8,7 @@
 Plugma is a small framework for making it easier to develop and maintain Figma Plugins.
 
 ## Features
-- Convenient methods for message handling, menu commands, showing UI and more
+- Convenient methods for message handling, menu commands, showing and posting to UI and more
 - A single reference for managing plugin state across multiple commands
 - Automatic version management so you can upgrade documents and nodes created by past versions of your plugin
 
@@ -36,7 +36,7 @@ plugma((plugin) => {
             }
         },
         on: {
-            'createRectangle': () => {
+            'createRectangle': (msg) => {
                 const nodes: SceneNode[] = [];
                 for (let i = 0; i < msg.count; i++) {
                     const rect = figma.createRectangle();
@@ -61,8 +61,7 @@ plugma((plugin) => {
 
 ## State Management
 
-The framework provides a `plugin` reference which gives you the state of the plugin at any given time. This is useful to keep consistancey across different commands. If you ever need to make an exception, you can change the state of the plugin per command.
-
+The framework provides a `plugin` reference which gives you the state of the plugin at any given time. This is useful for keeping consistancy like, UI state and when the plugin closes.
 ```js
 // plugin properties
 
