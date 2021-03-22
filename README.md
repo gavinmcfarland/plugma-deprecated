@@ -95,7 +95,7 @@ plugin.on('buttonPressed', (message) => {
 
 ## Version Management
 
-Easily communicate new features with your users by keeping track of changes via a CLI. Plugma automatically add version data on build so you can target documents and nodes created by past versions of your plugin.
+Easily communicate new features with your users by keeping track of changes via the `plugma` CLI (alternatively you can use `npm version`). Plugma automatically add version data on build so you can target documents and nodes created by past versions of your plugin.
 
 ```bash
 plugma version [patch|minor|major]
