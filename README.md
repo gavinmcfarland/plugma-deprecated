@@ -5,7 +5,12 @@
 
 # Plugma
 
-Plugma is a small framework for creating Figma Plugins. It provides some features and syntastic sugar for making it easier to develop and maintain plugins.
+Plugma is a small framework for making it easier to develop and maintain Figma Plugins.
+
+## Features
+- Convenient methods for message handling, menu commands, showing UI and more
+- A single reference for managing plugin state across multiple commands
+- Automatic version management so you can upgrade documents and nodes created by past versions of your plugin
 
 ## Example
 
@@ -54,9 +59,9 @@ plugma((plugin) => {
 })
 ```
 
-## State Managment
+## State Management
 
-The framework provides a `plugin` reference which gives you the state of the `plugin` at any given time. This is useful to keep consistancey across different commands. If you ever need to make an exception, you can change the state of the plugin per command.
+The framework provides a `plugin` reference which gives you the state of the plugin at any given time. This is useful to keep consistancey across different commands. If you ever need to make an exception, you can change the state of the plugin per command.
 
 ```js
 // plugin properties
@@ -68,7 +73,7 @@ plugin.ui {
 }
 ```
 
-## Commands
+## Menu Commands
 
 With Plugma, commands can automatically show and post data for UIs without much extra setup. Each command has access to the state of the plugin, including the name of the command used to start it.
 
@@ -90,7 +95,7 @@ plugin.on('buttonPressed', () => {
 
 ## Version Management
 
-Using a CLI plugma makes it easy to communicate new features with your users by keeping a version log. It automatically adds version data so you can target and make upgrades to documents and nodes created with previous versions of your plugin. Plugma does this by injecting code on build to set plugin data.
+Easily communicate new features with your users by keeping track of changes via a CLI. Plugma automatically add version data on build so you can target documents and nodes created by past versions of your plugin.
 
 ```bash
 plugma version [patch|minor|major]
