@@ -87,7 +87,7 @@ plugin.command('createRectangle', ({ui, command, version, data}) => {
 There is a simple method for listening for messages from the UI using `plugin.on()`.
 
 ```js
-plugin.on('buttonPressed', () => {
+plugin.on('buttonPressed', (message) => {
 
 })
 ```
