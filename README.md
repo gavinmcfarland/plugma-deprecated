@@ -15,7 +15,7 @@ Plugma is a small framework for making it easier to develop and maintain Figma P
 
 ## Example
 
-Below is an example of how plugins are created using plugma.
+Below is an example of how you can create Figma plugins with plugma.
 
 ```js
 // code.ts
@@ -101,41 +101,25 @@ Easily communicate new features with your users by keeping track of changes via 
 plugma version [patch|minor|major]
 ```
 
-
-
-## Configure
-
-```js
-// plugma.config.js
-
-export default {
-    whatsNewUI: true
-}
-```
-
-
-## Devlopment
-
-Currently this framework is bundled using `rollup` and for the front end it uses `svelte`. However it should be agnostic to work with any frontend framework.
-
-To install:
-
-```bash
-npm install
-```
-
-To develop:
-
-```bash
-npm run dev
-```
-
 ## Setup
+
+### Install as dev dependency
 
 Install plugma as a dev dependency.
 
 ```bash
 npm install plugma --save-dev
+```
+
+### Setup manifest.json
+
+To enable auto versioning on publish add the following property to your `manifest.json` file.
+
+```jsonc
+{
+    // ...
+    "build": "/usr/local/bin/node NODE_ENV=manifest plugma version patch"
+}
 ```
 
 ## Using Rollup
@@ -153,4 +137,30 @@ plugins: [
     })
     // ...
 ]
+```
+
+## Devlopment
+
+Currently this framework is bundled using `rollup` and for the front end it uses `svelte`. However it should be agnostic to work with any frontend framework.
+
+To install:
+
+```bash
+npm install
+```
+
+To develop:
+
+```bash
+npm run dev
+```
+
+## Configure
+
+```js
+// plugma.config.js
+
+export default {
+    whatsNewUI: true
+}
 ```
