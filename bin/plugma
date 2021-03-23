@@ -1,8 +1,24 @@
 #! /usr/bin/env node
 
-const build = require("../dist/build.js")
+const cli = require("../dist/cli.js")
 
-build()
+const yargs = require('yargs')
+
+const options = yargs.scriptName("plugma")
+	.usage('Usage: $0 <cmd> [args]')
+	.command('version [name]', 'welcome ter yargs!', (yargs) => {
+		yargs.positional('name', {
+			type: 'string',
+			default: 'patch',
+			describe: 'the semver to increment'
+		})
+	}, function (argv) {
+		console.log('[plugma]', argv.name)
+	})
+	.help()
+	.argv
+
+cli(options)
 // console.log("hello")
 
 // require = require('esm')(module /*, options */);
