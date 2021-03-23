@@ -3,6 +3,31 @@
  */
 
 const fs = require('fs')
+
+function _getCallerFile() {
+	var originalFunc = Error.prepareStackTrace;
+
+	var callerfile;
+	try {
+		var err = new Error();
+		var currentfile;
+
+		Error.prepareStackTrace = function (err, stack) { return stack; };
+
+		currentfile = err.stack.shift().getFileName();
+
+		while (err.stack.length) {
+			callerfile = err.stack.shift().getFileName();
+
+			if (currentfile !== callerfile) break;
+		}
+	} catch (e) { }
+
+	Error.prepareStackTrace = originalFunc;
+
+	return callerfile;
+}
+
 var location
 
 if (process.env.NODE_ENV === 'test') {
@@ -46,11 +71,11 @@ export default function cli(options) {
 	var memory = require(pathToMemory)
 
 	// Should increment version number?
-	var incrementVersion = false
+	var shouldIncrementVersion = false
 	if (memory.lastIncrementedWithManifest
 		&& !memory.firstTimeIncrementedWithManifest
 		&& process.env.NODE_ENV === "manifest") {
-		incrementVersion = true
+		shouldIncrementVersion = true
 	}
 
 	// Change state of memory
@@ -66,38 +91,38 @@ export default function cli(options) {
 
 	fs.writeFile(pathToMemory, newMemory, (err) => {
 		if (err) throw err;
-		console.log('Memory updated!');
+		// console.log('Memory updated!');
 	});
 
+	// We check to see if the CLI was used to incremenet version, because if it was we don't want to increment it before being published
+	if (shouldIncrementVersion || memory.firstTimeIncrementedWithManifest || process.env.NODE_ENV !== "manifest") {
+		// Update version number
+		var versionSplit = pkg.version.split(".")
+		versionSplit = versionSplit.map((item => parseInt(item)))
 
-	// Update version number
-	var versionSplit = pkg.version.split(".")
-	versionSplit = versionSplit.map((item => parseInt(item)))
+		switch (options.name) {
+			case "patch":
+				versionSplit[2] += 1
+				break
+			case "minor":
+				versionSplit[1] += 1
+				break
+			case "major":
+				versionSplit[0] += 1
+		}
 
-	switch (options.name) {
-		case "patch":
-			versionSplit[2] += 1
-			break
-		case "minor":
-			versionSplit[1] += 1
-			break
-		case "major":
-			versionSplit[0] += 1
+		pkg.version = versionSplit.join(".")
+
+		console.log(pkg.version)
+
+		var newPkg = JSON.stringify(pkg, null, '\t')
+
+		fs.writeFile(pathToPkg, newPkg, (err) => {
+			if (err) throw err;
+			// console.log('Updated version number!');
+		});
 	}
 
-	pkg.version = versionSplit.join(".")
-
-	console.log(pkg.version)
-
-	var newPkg = JSON.stringify(pkg, null, '\t')
-
-	fs.writeFile(pathToPkg, newPkg, (err) => {
-		if (err) throw err;
-		console.log('Updated version number!');
-	});
-
-
-
-	// injectCode()
+	injectCode()
 }
 

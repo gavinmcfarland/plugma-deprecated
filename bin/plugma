@@ -13,7 +13,7 @@ const options = yargs.scriptName("plugma")
 			describe: 'the semver to increment'
 		})
 	}, function (argv) {
-		console.log('[plugma]', argv.name)
+		// console.log('[plugma]', argv.name)
 	})
 	.help()
 	.argv

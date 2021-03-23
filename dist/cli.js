@@ -12,13 +12,37 @@ else {
     location = process.cwd();
 }
 const pkg = require(location + "/package.json");
+function injectCode() {
+    fs.readFile(location + "/code.js", "utf8", (err, data) => {
+        // 1. First search for variable with match.
+        // 2. Then search for matches within.
+        data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
+            var matches = [];
+            match.replace(/(\w+)\s*=\s*figma\./gmi, (match, p1, p2, p3, offset, string) => {
+                matches.push(p1);
+            });
+            matches = matches.map((item) => `${item}.setPluginData("version", ${JSON.stringify(pkg.version)})`);
+            var newString = matches.join(";") + ";";
+            return match + newString;
+        });
+        fs.writeFile(location + "/code.js", data, (err) => {
+            if (err)
+                throw err;
+            console.log('The file has been saved!');
+        });
+    });
+}
 function cli(options) {
     var pathToMemory = __dirname + "/../bin/memory.json";
     var pathToPkg = location + "/package.json";
     var memory = require(pathToMemory);
+    // Should increment version number?
+    var shouldIncrementVersion = false;
     if (memory.lastIncrementedWithManifest
         && !memory.firstTimeIncrementedWithManifest
-        && process.env.NODE_ENV === "manifest") ;
+        && process.env.NODE_ENV === "manifest") {
+        shouldIncrementVersion = true;
+    }
     // Change state of memory
     if (process.env.NODE_ENV === "manifest") {
         memory.firstTimeIncrementedWithManifest = false;
@@ -31,30 +55,33 @@ function cli(options) {
     fs.writeFile(pathToMemory, newMemory, (err) => {
         if (err)
             throw err;
-        console.log('Memory updated!');
+        // console.log('Memory updated!');
     });
-    // Update version number
-    var versionSplit = pkg.version.split(".");
-    versionSplit = versionSplit.map((item => parseInt(item)));
-    switch (options.name) {
-        case "patch":
-            versionSplit[2] += 1;
-            break;
-        case "minor":
-            versionSplit[1] += 1;
-            break;
-        case "major":
-            versionSplit[0] += 1;
+    // We check to see if the CLI was used to incremenet version, because if it was we don't want to increment it before being published
+    if (shouldIncrementVersion || memory.firstTimeIncrementedWithManifest || process.env.NODE_ENV !== "manifest") {
+        // Update version number
+        var versionSplit = pkg.version.split(".");
+        versionSplit = versionSplit.map((item => parseInt(item)));
+        switch (options.name) {
+            case "patch":
+                versionSplit[2] += 1;
+                break;
+            case "minor":
+                versionSplit[1] += 1;
+                break;
+            case "major":
+                versionSplit[0] += 1;
+        }
+        pkg.version = versionSplit.join(".");
+        console.log(pkg.version);
+        var newPkg = JSON.stringify(pkg, null, '\t');
+        fs.writeFile(pathToPkg, newPkg, (err) => {
+            if (err)
+                throw err;
+            // console.log('Updated version number!');
+        });
     }
-    pkg.version = versionSplit.join(".");
-    console.log(pkg.version);
-    var newPkg = JSON.stringify(pkg, null, '\t');
-    fs.writeFile(pathToPkg, newPkg, (err) => {
-        if (err)
-            throw err;
-        console.log('Updated version number!');
-    });
-    // injectCode()
+    injectCode();
 }
 
 module.exports = cli;

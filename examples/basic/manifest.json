@@ -1,5 +1,5 @@
 {
-  "name": "Test Plugin",
+  "name": "DO NOT PUBLISH",
   "id": "954487438999338283",
   "api": "1.0.0",
   "main": "code.js",
@@ -9,5 +9,6 @@
       "name": "Create Rectangles",
       "command": "createRectangles"
     }
-  ]
+  ],
+   "build": "/usr/local/bin/node ../../bin/plugma version patch"
 }
