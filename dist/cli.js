@@ -4,6 +4,7 @@
  * This scripts appends the current version number to every node created.
  */
 const fs = require('fs');
+const { exec } = require("child_process");
 var location;
 if (process.env.NODE_ENV === 'test') {
     location = process.cwd() + '/src/stub/';
@@ -57,6 +58,7 @@ function cli(options) {
             throw err;
         // console.log('Memory updated!');
     });
+    // if (memory.timestamp !== getFileUpdatedDate(location + "/code.js"))
     // We check to see if the CLI was used to incremenet version, because if it was we don't want to increment it before being published
     if (shouldIncrementVersion || memory.firstTimeIncrementedWithManifest || process.env.NODE_ENV !== "manifest") {
         // Update version number
@@ -80,8 +82,22 @@ function cli(options) {
                 throw err;
             // console.log('Updated version number!');
         });
+        // We need to create a new build first so that version data doesn't get duplicated
+        exec("npm run build", (error, stdout, stderr) => {
+            // if (error) {
+            // 	console.log(`error: ${error.message}`);
+            // 	return;
+            // }
+            // if (stderr) {
+            // 	console.log(`stderr: ${stderr}`);
+            // 	return;
+            // }
+            if (stdout) {
+                injectCode();
+            }
+            // console.log(`stdout: ${stdout}`);
+        });
     }
-    injectCode();
 }
 
 module.exports = cli;

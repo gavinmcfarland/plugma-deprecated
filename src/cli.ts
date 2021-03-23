@@ -3,6 +3,7 @@
  */
 
 const fs = require('fs')
+const { exec } = require("child_process");
 
 function _getCallerFile() {
 	var originalFunc = Error.prepareStackTrace;
@@ -38,6 +39,11 @@ if (process.env.NODE_ENV === 'test') {
 
 const pkg = require(location + "/package.json")
 
+const getFileUpdatedDate = (path) => {
+	const stats = fs.statSync(path)
+	return stats.mtime
+}
+
 function injectCode() {
 
 	fs.readFile(location + "/code.js", "utf8", (err, data) => {
@@ -70,6 +76,7 @@ export default function cli(options) {
 	var pathToPkg = location + "/package.json"
 	var memory = require(pathToMemory)
 
+
 	// Should increment version number?
 	var shouldIncrementVersion = false
 	if (memory.lastIncrementedWithManifest
@@ -93,6 +100,9 @@ export default function cli(options) {
 		if (err) throw err;
 		// console.log('Memory updated!');
 	});
+
+	// if (memory.timestamp !== getFileUpdatedDate(location + "/code.js"))
+
 
 	// We check to see if the CLI was used to incremenet version, because if it was we don't want to increment it before being published
 	if (shouldIncrementVersion || memory.firstTimeIncrementedWithManifest || process.env.NODE_ENV !== "manifest") {
@@ -121,8 +131,23 @@ export default function cli(options) {
 			if (err) throw err;
 			// console.log('Updated version number!');
 		});
-	}
 
-	injectCode()
+
+		// We need to create a new build first so that version data doesn't get duplicated
+		exec("npm run build", (error, stdout, stderr) => {
+			// if (error) {
+			// 	console.log(`error: ${error.message}`);
+			// 	return;
+			// }
+			// if (stderr) {
+			// 	console.log(`stderr: ${stderr}`);
+			// 	return;
+			// }
+			if (stdout) {
+				injectCode()
+			}
+			// console.log(`stdout: ${stdout}`);
+		});
+	}
 }
 
