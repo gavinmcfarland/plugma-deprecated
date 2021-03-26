@@ -55,7 +55,7 @@ plugma((plugin) => {
         plugin.on('cancel', () => {
             figma.closePlugin();
         })
-	})
+    })
 })
 ```
 
