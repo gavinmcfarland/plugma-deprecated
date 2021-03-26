@@ -13,8 +13,11 @@ import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 // import autoprefixer from 'autoprefixer';
+import path from 'path';
 
 const production = !process.env.ROLLUP_WATCH;
+
+const externalId = path.resolve('./versions.json');
 
 function serve() {
 	let server;
@@ -98,21 +101,22 @@ export default [
 	// },
 	{
 		input: 'code.ts',
+		// external: ['./versions.json'],
 		output: {
 			file: 'code.js',
-			format: 'cjs',
+			format: 'es',
 			name: 'code'
 		},
 		plugins: [
 			typescript(),
 
-			// nodePolyfills(),
+			nodePolyfills(),
 			nodeResolve(),
 			json(),
-			replace({
-				'process.env.VERSIONS_PATH': JSON.stringify('./versions.json'),
-				'process.env.PKG_PATH': JSON.stringify('./package.json')
-			}),
+			// replace({
+			// 	'process.env.VERSIONS_PATH': JSON.stringify('./versions.json'),
+			// 	'process.env.PKG_PATH': JSON.stringify('./package.json')
+			// }),
 			commonjs(),
 
 			// globals(),

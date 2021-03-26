@@ -3,14 +3,16 @@
 // TODO: Check package from working directory
 // TODO: Check versions from working directory
 // TODO: How to fix issue of referenceing file when used as depency
-// import pkg from '../package.json';
-// import versionHistory from './versions.json';
-// import semver from 'semver';
-var pkg;
+var versionHistory, pkg;
 var process = process;
 if ((process === null || process === void 0 ? void 0 : process.env.NODE_ENV) === "TEST") ;
 else {
-    require("./.plugma/versions.json");
+    try {
+        versionHistory = require("./.plugma/versions.json");
+    }
+    catch (_a) {
+        versionHistory = {};
+    }
     pkg = require("./package.json");
 }
 // fs.readFile("../package.json", (err, data) => {

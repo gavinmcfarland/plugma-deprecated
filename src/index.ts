@@ -7,8 +7,15 @@
 // import versionHistory from './versions.json';
 // import semver from 'semver';
 
+import fs from 'fs';
 
 var versionHistory, pkg;
+
+
+
+
+
+
 
 var process = process;
 if (process?.env.NODE_ENV === "TEST") {
@@ -16,9 +23,16 @@ if (process?.env.NODE_ENV === "TEST") {
 	// pkg = require(process.env.PKG_PATH);
 }
 else {
-	versionHistory = require("./.plugma/versions.json");
+	try {
+		versionHistory = require("./.plugma/versions.json");
+	}
+	catch {
+		versionHistory = {}
+	}
+
 	pkg = require("./package.json");
 }
+
 
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
