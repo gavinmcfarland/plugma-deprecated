@@ -6,8 +6,13 @@
 // import pkg from '../package.json';
 // import versionHistory from './versions.json';
 // import semver from 'semver';
-require(process.env.VERSIONS_PATH);
-var pkg = require(process.env.PKG_PATH);
+var pkg;
+var process = process;
+if ((process === null || process === void 0 ? void 0 : process.env.NODE_ENV) === "TEST") ;
+else {
+    require("./.plugma/versions.json");
+    pkg = require("./package.json");
+}
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
 // })
@@ -31,8 +36,12 @@ function plugma(plugin) {
     };
     // pluginState.updateAvailable = updateAvailable()
     var eventListeners = [];
+    var menuCommands = [];
     pluginState.on = (type, callback) => {
         eventListeners.push({ type, callback });
+    };
+    pluginState.command = (type, callback) => {
+        menuCommands.push({ type, callback });
     };
     // Override default page name if set
     var pageMannuallySet = false;
@@ -86,6 +95,15 @@ function plugma(plugin) {
                 eventListener.callback(message);
         }
     };
+    pluginState.ui.show = (data) => {
+        figma.showUI(pluginState.ui.html, { width: pluginState.ui.width, height: pluginState.ui.height });
+        figma.ui.postMessage(data);
+    };
+    for (let command of menuCommands) {
+        if (figma.command === command.type) {
+            command.callback(pluginState);
+        }
+    }
     // console.log(pluginObject)
 }
 

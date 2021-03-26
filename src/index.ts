@@ -8,9 +8,17 @@
 // import semver from 'semver';
 
 
+var versionHistory, pkg;
 
-var versionHistory = require(process.env.VERSIONS_PATH);
-var pkg = require(process.env.PKG_PATH);
+var process = process;
+if (process?.env.NODE_ENV === "TEST") {
+	// versionHistory = require(process.env.VERSIONS_PATH);
+	// pkg = require(process.env.PKG_PATH);
+}
+else {
+	versionHistory = require("./.plugma/versions.json");
+	pkg = require("./package.json");
+}
 
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
@@ -31,8 +39,6 @@ var pkg = require(process.env.PKG_PATH);
 // 	}
 // }
 
-
-
 export default function plugma(plugin) {
 	var pluginState: any = {
 		version: pkg.version,
@@ -44,9 +50,14 @@ export default function plugma(plugin) {
 
 
 	var eventListeners = []
+	var menuCommands = []
 
 	pluginState.on = (type, callback) => {
 		eventListeners.push({ type, callback })
+	}
+
+	pluginState.command = (type, callback) => {
+		menuCommands.push({ type, callback })
 	}
 
 	// Override default page name if set
@@ -55,6 +66,8 @@ export default function plugma(plugin) {
 		pluginState.ui.page = name
 		pageMannuallySet = true
 	}
+
+
 
 	// pluginState.update = (callback) => {
 	// 	for (let [version, changes] of Object.entries(versionHistory)) {
@@ -96,6 +109,7 @@ export default function plugma(plugin) {
 				// }
 
 				// Call function for that command
+
 				value(pluginState)
 
 				// Show UI?
@@ -115,6 +129,17 @@ export default function plugma(plugin) {
 			if (message.type === eventListener.type) eventListener.callback(message);
 		}
 	};
+
+	pluginState.ui.show = (data) => {
+		figma.showUI(pluginState.ui.html, { width: pluginState.ui.width, height: pluginState.ui.height })
+		figma.ui.postMessage(data)
+	}
+
+	for (let command of menuCommands) {
+		if (figma.command === command.type) {
+			command.callback(pluginState);
+		}
+	}
 
 	// console.log(pluginObject)
 }

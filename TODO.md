@@ -1,11 +1,11 @@
 1. Move actual source code to `src` folder DONE
 2. Publish on `npm`
-3. Move `build.js` into `src/` and configure to check users working directory. Make sure it only happens after code has been compiled and not on code which has already had versions added to it.
 4. Create CLI to add versions to version file DONE
-5. Add way to prevent plugin from being published using `build` property of manifest
-6. Think of way to prevent from adding multiple version data
+6. Think of way to prevent from adding multiple version data DONE (by rebuilding file)
 7. If the file has not even changed, don't allow version update
 8. Add `plugma.command`, `plugma.post`, `plugin.ui.show` and `plugma.on`.
+9. Append version data to version log.
+10. Create folder and version file when not present on `plugma version`
 
 **use cases**
 

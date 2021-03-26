@@ -5,13 +5,13 @@
 
 # Plugma
 
-Plugma is a small framework for making it easier to develop and maintain Figma Plugins.
+Plugma is a small framework and CLI that makes it easier to develop and maintain Figma plugins.
 
 ## Features
 - Convenient methods for message handling, menu commands, showing and posting to UI and more
 - A single reference for managing plugin state more easily throughout your code
-- Auto-increment plugin version on publish
-- Easily find documents and nodes created by past versions of your plugin
+- Keep track of changes using the CLI
+- Find documents and nodes created by past versions of your plugin
 
 ## Example
 
@@ -30,33 +30,30 @@ plugma((plugin) => {
         height: 400
     }
 
-    return {
-        command: {
-            'createRectangle': ({data}) => {
-                ui.show(data)
+    plugin.command('createRectangles', ({ui, data}) => {
+        
+        ui.show(data)
+        
+		plugin.on('create-rectangles', (msg) => {
+            const nodes: SceneNode[] = [];
+            for (let i = 0; i < msg.count; i++) {
+                const rect = figma.createRectangle();
+                const rect2 = figma.createRectangle()
+                console.log(rect2);
+                rect.x = i * 150;
+                rect.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
+                figma.currentPage.appendChild(rect);
+                nodes.push(rect);
             }
-        },
-        on: {
-            'createRectangle': (msg) => {
-                const nodes: SceneNode[] = [];
-                for (let i = 0; i < msg.count; i++) {
-                    const rect = figma.createRectangle();
-                    const rect2 = figma.createRectangle()
-                    console.log(rect2);
-                    rect.x = i * 150;
-                    rect.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
-                    figma.currentPage.appendChild(rect);
-                    nodes.push(rect);
-                }
-                figma.currentPage.selection = nodes;
-                figma.viewport.scrollAndZoomIntoView(nodes);
-                figma.closePlugin();
-            },
-            'cancel': () => {
-                figma.closePlugin();
-            }
-        }
-    }
+            figma.currentPage.selection = nodes;
+            figma.viewport.scrollAndZoomIntoView(nodes);
+            figma.closePlugin();
+        })
+
+        plugin.on('cancel', () => {
+            figma.closePlugin();
+        })
+	})
 })
 ```
 
@@ -75,7 +72,7 @@ plugin.ui {
 
 ## Menu Commands
 
-Simplified developer experience for managing commands. Commands can automatically show and post data for UIs. Each command has access to the state of the plugin, including the name of the command used to start it.
+Simplified developer experience for managing commands. Each command has access to the state of the plugin, including the name of the command used to start it.
 
 ```js
 plugin.command('createRectangle', ({ui, command, version, data}) => {
@@ -111,7 +108,7 @@ Install plugma as a dev dependency.
 npm install plugma --save-dev
 ```
 
-### Setup manifest.json
+<!-- ### Setup manifest.json
 
 To enable auto versioning on publish add the following property to your `manifest.json` file.
 
@@ -120,11 +117,13 @@ To enable auto versioning on publish add the following property to your `manifes
     // ...
     "build": "/usr/local/bin/node NODE_ENV=manifest plugma version patch"
 }
-```
+``` -->
 
-## Using Rollup
+<!-- ## Path Preferences
 
-For rollup, you'll need to replace the following
+Unfortunately for the time being you'll need to manually specify the locations of your `package.json` and `versions.json` file. This is due to bundling tools not supporting dynamic import paths.
+
+For rollup, you can do the following:
 
 ```js
 // ...
@@ -137,7 +136,7 @@ plugins: [
     })
     // ...
 ]
-```
+``` -->
 
 ## Devlopment
 
