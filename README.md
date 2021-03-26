@@ -5,7 +5,7 @@
     <a href="https://travis-ci.org/limitlessloop/plugma"><img src="https://img.shields.io/travis/limitlessloop/plugma.svg"></a>  
 </p>
 
-> This project is currently in alpha so it might not work as expected
+> This project is currently in alpha so some things might not work as expected
 
 Plugma is a small framework and CLI that makes it easier to develop and maintain Figma plugins.
 
