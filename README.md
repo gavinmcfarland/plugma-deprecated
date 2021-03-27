@@ -156,7 +156,7 @@ To develop:
 npm run dev
 ```
 
-## Configure
+<!-- ## Configure
 
 ```js
 // plugma.config.js
@@ -164,4 +164,4 @@ npm run dev
 export default {
     whatsNewUI: true
 }
-```
+``` -->
