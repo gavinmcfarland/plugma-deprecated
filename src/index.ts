@@ -8,6 +8,7 @@
 // import semver from 'semver';
 
 import fs from 'fs';
+import path from 'path';
 
 var versionHistory, pkg;
 
@@ -24,13 +25,13 @@ if (process?.env.NODE_ENV === "TEST") {
 }
 else {
 	try {
-		versionHistory = require("./.plugma/versions.json");
+		versionHistory = require(process.cwd() + ".plugma/versions.json");
 	}
 	catch {
 		versionHistory = {}
 	}
 
-	pkg = require("./package.json");
+	pkg = require(process.cwd() + "package.json");
 }
 
 

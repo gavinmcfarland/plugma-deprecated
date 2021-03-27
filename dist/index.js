@@ -8,12 +8,12 @@ var process = process;
 if ((process === null || process === void 0 ? void 0 : process.env.NODE_ENV) === "TEST") ;
 else {
     try {
-        versionHistory = require("./.plugma/versions.json");
+        versionHistory = require(process.cwd() + ".plugma/versions.json");
     }
     catch (_a) {
         versionHistory = {};
     }
-    pkg = require("./package.json");
+    pkg = require(process.cwd() + "package.json");
 }
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
