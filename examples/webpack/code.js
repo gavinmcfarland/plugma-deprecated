@@ -1,0 +1,1 @@
+(()=>{var e=figma.createRectangle();console.log(e)})();
