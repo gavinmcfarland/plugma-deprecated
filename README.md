@@ -10,6 +10,7 @@
 Plugma is a small framework and CLI that makes it easier to develop and maintain Figma plugins.
 
 ## Features
+
 - Convenient methods for message handling, menu commands, showing and posting to UI and more
 - A single reference for managing plugin state more easily throughout your code
 - Keep track of changes using the CLI
@@ -36,7 +37,7 @@ plugma((plugin) => {
         
         ui.show(data)
         
-	plugin.on('create-rectangles', (msg) => {
+        plugin.on('create-rectangles', (msg) => {
             const nodes: SceneNode[] = [];
             for (let i = 0; i < msg.count; i++) {
                 const rect = figma.createRectangle();
@@ -57,7 +58,9 @@ plugma((plugin) => {
 })
 ```
 
-## State Management
+## Usage
+
+### State Management
 
 The framework provides a `plugin` reference which gives you the state of the plugin at any given time. This is useful for keeping consistancy like, UI state and when the plugin should close.
 ```js
@@ -70,7 +73,7 @@ plugin.ui {
 }
 ```
 
-## Menu Commands
+### Menu Commands
 
 Simplified developer experience for managing commands. Each command has access to the state of the plugin, including the name of the command used to start it.
 
@@ -80,7 +83,7 @@ plugin.command('createRectangle', ({ui, command, version, data}) => {
 })
 ```
 
-## Message Handling
+### Message Handling
 
 There is a simple method for listening for messages from the UI using `plugin.on()`.
 
@@ -90,7 +93,7 @@ plugin.on('buttonPressed', (message) => {
 })
 ```
 
-## Version Management
+### Version Management
 
 Easily communicate new features with your users by keeping track of changes via the `plugma` CLI (alternatively you can use `npm version`). Plugma automatically add version data on build so you can target documents and nodes created by past versions of your plugin.
 
@@ -98,7 +101,7 @@ Easily communicate new features with your users by keeping track of changes via 
 plugma version [patch|minor|major]
 ```
 
-## Setup
+## Installation
 
 ### Install as dev dependency
 
@@ -139,8 +142,6 @@ plugins: [
 ``` -->
 
 ## Devlopment
-
-Currently this framework is bundled using `rollup` and for the front end it uses `svelte`. However it should be agnostic to work with any frontend framework.
 
 To install:
 
