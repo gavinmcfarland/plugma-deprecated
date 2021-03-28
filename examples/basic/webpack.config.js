@@ -12,5 +12,5 @@ module.exports = {
 			// all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
 			{ test: /\.ts?$/, use: ["ts-loader"], exclude: /node_modules/ },
 		],
-	},
+	}
 };

@@ -1,4 +1,4 @@
-import plugma from '../../dist/index'
+import plugma from 'plugma'
 
 plugma((plugin) => {
 	console.log(plugin)

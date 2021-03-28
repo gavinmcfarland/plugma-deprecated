@@ -1,7 +1,7 @@
 import plugma from 'plugma'
 
 plugma((plugin) => {
-	console.log(plugin)
+	console.log(plugin.version)
 
 	plugin.ui = {
 		html: __html__,
