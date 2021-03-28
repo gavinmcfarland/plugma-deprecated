@@ -1,7 +1,13 @@
 import plugma from 'plugma'
 
+// var process = require('process')
+// var pkg = require(process.cwd() + "package.json");
+// console.log(pkg.version)
+
 plugma((plugin) => {
 	console.log(plugin.version)
+
+
 
 	plugin.ui = {
 		html: __html__,

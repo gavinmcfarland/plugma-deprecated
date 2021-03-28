@@ -1,7 +1,9 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = (env, argv) => ({
 	// This is necessary because Figma's 'eval' works differently than normal eval
+	context: path.resolve(__dirname),
 	devtool: argv.mode === 'production' ? false : 'inline-source-map',
 	entry: "./code.ts",
 	output: {
@@ -10,6 +12,10 @@ module.exports = (env, argv) => ({
 	},
 	resolve: {
 		extensions: [".tsx", ".ts", ".js", ".json"],
+		fallback: {
+			"process": require.resolve("process/browser"),
+			// "process": false
+		}
 	},
 	module: {
 		rules: [
@@ -17,9 +23,25 @@ module.exports = (env, argv) => ({
 			{ test: /\.tsx?$/, use: ["ts-loader"], exclude: /node_modules/ }
 		],
 	},
-	node: {
-		__filename: true,
-		__dirname: true
-	}
+	plugins: [
+		new webpack.DefinePlugin({
+			// CWD: JSON.stringify("/")
+			'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+			'process.env.CWD': JSON.stringify(process.cwd())
+			// 'process.cwd()': JSON.stringify(process.cwd())
+			// 'process.env': {
+			// 	NODE_ENV: JSON.stringify("/")
+			// },
+		}),
+		// new webpack.EnvironmentPlugin({
+		// 	CWD: '/', // use 'development' unless process.env.NODE_ENV is defined
+		// 	DEBUG: false,
+		// })
+	],
+	// node: {
+	// 	global: false,
+	// 	__filename: true,
+	// 	__dirname: true,
+	// }
 
 });
