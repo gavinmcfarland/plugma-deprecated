@@ -9,7 +9,7 @@
 // import fs from 'fs';
 // import path from 'path';
 var versionHistory, pkg;
-var process = require('process');
+// var process = require('process')
 // // var process = process;
 if (process.env.NODE_ENV === "TEST") ;
 else {

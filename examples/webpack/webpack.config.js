@@ -13,13 +13,22 @@ module.exports = (env, argv) => ({
 	resolve: {
 		extensions: [".tsx", ".ts", ".js", ".json"],
 		fallback: {
-			"process": require.resolve("process/browser"),
-			// "process": false
+			// "process": require.resolve("process/browser"),
+			"process": false
 		}
 	},
 	module: {
 		rules: [
 			// all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
+			{
+				test: /\.tsx?$|\.js?$/,
+				loader: 'string-replace-loader',
+				options: {
+					search: /process\.cwd\(\)/gi,
+					replace: '"/"',
+					flags: 'g'
+				}
+			},
 			{ test: /\.tsx?$/, use: ["ts-loader"], exclude: /node_modules/ }
 		],
 	},
@@ -27,16 +36,13 @@ module.exports = (env, argv) => ({
 		new webpack.DefinePlugin({
 			// CWD: JSON.stringify("/")
 			'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-			'process.env.CWD': JSON.stringify(process.cwd())
+			'process.env.CWD': JSON.stringify(process.cwd()),
+			// 'process.cwd\(\)': 'window.jQuery'
 			// 'process.cwd()': JSON.stringify(process.cwd())
 			// 'process.env': {
 			// 	NODE_ENV: JSON.stringify("/")
 			// },
 		}),
-		// new webpack.EnvironmentPlugin({
-		// 	CWD: '/', // use 'development' unless process.env.NODE_ENV is defined
-		// 	DEBUG: false,
-		// })
 	],
 	// node: {
 	// 	global: false,
