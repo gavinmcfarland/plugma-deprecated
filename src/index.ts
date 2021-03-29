@@ -15,24 +15,23 @@ var versionHistory, pkg;
 // var process = require('process')
 
 
-
 // // var process = process;
-if (process.env.NODE_ENV === "TEST") {
-	// 	// versionHistory = require(process.env.VERSIONS_PATH);
-	// 	// pkg = require(process.env.PKG_PATH);
+// if (process.env.NODE_ENV === "TEST") {
+// 	// 	// versionHistory = require(process.env.VERSIONS_PATH);
+// 	// 	// pkg = require(process.env.PKG_PATH);
+// }
+// else {
+try {
+	versionHistory = require("./.plugma/versions.json");
 }
-else {
-	try {
-		versionHistory = require(process.cwd() + ".plugma/versions.json");
-	}
-	catch {
-		versionHistory = {}
-	}
-
-	pkg = require(process.cwd() + "package.json");
+catch {
+	versionHistory = {}
 }
 
-console.log(process.cwd() + "package.json")
+pkg = require("./package.json");
+// }
+
+console.log(process.cwd + "package.json");
 
 
 // fs.readFile("../package.json", (err, data) => {

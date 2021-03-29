@@ -118,7 +118,11 @@ export default [
 			// 	'process.env.PKG_PATH': JSON.stringify('./package.json')
 			// }),
 			commonjs(),
-
+			replace({
+				values: {
+					'process.cwd': '"/"'
+				}
+			}),
 			// globals(),
 
 
