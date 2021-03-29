@@ -17,14 +17,14 @@ var versionHistory, pkg;
 // }
 // else {
 try {
-    versionHistory = require("./.plugma/versions.json");
+    versionHistory = require(process.cwd() + "package.json");
 }
 catch (_a) {
     versionHistory = {};
 }
-pkg = require("./package.json");
+pkg = require(process.cwd() + "package.json");
 // }
-console.log(process.cwd + "package.json");
+console.log(process.cwd() + "package.json");
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
 // })
