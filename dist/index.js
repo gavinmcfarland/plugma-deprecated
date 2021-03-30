@@ -1,1 +1,124 @@
-"use strict";var e,i=require("process");i.env.PKG_PATH&&(e=require(i.env.PKG_PATH)),i.env.VERSIONS_PATH&&require(i.env.VERSIONS_PATH),module.exports=function(i){var a={updateAvailable:!1,ui:{}};(null==e?void 0:e.version)&&(a.version=e.version);var o=[],t=[];a.on=(e,i)=>{o.push({type:e,callback:i})},a.command=(e,i)=>{t.push({type:e,callback:i})};var s=!1;a.setStartPage=e=>{a.ui.page=e,s=!0};var r=i(a);if(Object.assign({},a,{commands:r}),r)for(let[e,i]of Object.entries(r))figma.command===e&&(s||(a.ui.page=e),i(a),a.ui.open&&(console.log("open?"),figma.showUI(a.ui.html)));figma.ui.onmessage=e=>{for(let i of o)e.type===i.type&&i.callback(e)},a.ui.show=e=>{figma.showUI(a.ui.html,{width:a.ui.width,height:a.ui.height}),figma.ui.postMessage(e)};for(let e of t)figma.command===e.type&&e.callback(a)};
+'use strict';
+
+// TODO: Check package from working directory
+// TODO: Check versions from working directory
+// TODO: How to fix issue of referenceing file when used as depency
+// import pkg from '../package.json';
+// import versionHistory from './versions.json';
+// import semver from 'semver';
+// import fs from 'fs';
+// import path from 'path';
+var pkg;
+var process = require('process');
+if (process.env.PKG_PATH) {
+    pkg = require(process.env.PKG_PATH);
+}
+if (process.env.VERSIONS_PATH) {
+    require(process.env.VERSIONS_PATH);
+}
+// try {
+// 	versionHistory = require("./package.json");
+// }
+// catch {
+// 	versionHistory = {}
+// }
+// pkg = require(process.cwd() + "/package.json");
+// }
+// console.log(process.cwd() + "/package.json");
+// fs.readFile("../package.json", (err, data) => {
+// 	console.log(err, data)
+// })
+// const file = require("package.json")
+// console.log(file)
+// function updateAvailable() {
+// 	var currentVersion = figma.root.getPluginData("pluginVersion") || pkg.version;
+// 	var newVersion = pkg.version;
+// 	if (semver.gt(newVersion, currentVersion)) {
+// 		return true
+// 	}
+// 	else {
+// 		false
+// 	}
+// }
+function plugma(plugin) {
+    var pluginState = {
+        updateAvailable: false,
+        ui: {}
+    };
+    if (pkg === null || pkg === void 0 ? void 0 : pkg.version) {
+        pluginState.version = pkg.version;
+    }
+    // pluginState.updateAvailable = updateAvailable()
+    var eventListeners = [];
+    var menuCommands = [];
+    pluginState.on = (type, callback) => {
+        eventListeners.push({ type, callback });
+    };
+    pluginState.command = (type, callback) => {
+        menuCommands.push({ type, callback });
+    };
+    // Override default page name if set
+    var pageMannuallySet = false;
+    pluginState.setStartPage = (name) => {
+        pluginState.ui.page = name;
+        pageMannuallySet = true;
+    };
+    // pluginState.update = (callback) => {
+    // 	for (let [version, changes] of Object.entries(versionHistory)) {
+    // 		if (version === pkg.version) {
+    // 			// for (let i = 0; i < changes.length; i++) {
+    // 			// 	var change = changes[i]
+    // 			// }
+    // 			callback({ version, changes })
+    // 		}
+    // 	}
+    // }
+    var pluginCommands = plugin(pluginState);
+    // // Override default page name if set
+    // if (pageName[0]) {
+    // 	pluginState.ui.page = pageName[0]
+    // }
+    // console.log("pageName", pluginState.ui.page)
+    Object.assign({}, pluginState, { commands: pluginCommands });
+    if (pluginCommands) {
+        for (let [key, value] of Object.entries(pluginCommands)) {
+            // If command exists in manifest
+            if (figma.command === key) {
+                // Pass default page for ui
+                if (!pageMannuallySet) {
+                    pluginState.ui.page = key;
+                }
+                // Override default page name if set
+                // if (pageName[0]) {
+                // 	pluginState.ui.page = pageName[0]
+                // }
+                // Call function for that command
+                value(pluginState);
+                // Show UI?
+                if (pluginState.ui.open) {
+                    console.log("open?");
+                    figma.showUI(pluginState.ui.html);
+                }
+            }
+        }
+    }
+    figma.ui.onmessage = message => {
+        for (let eventListener of eventListeners) {
+            // console.log(message)
+            if (message.type === eventListener.type)
+                eventListener.callback(message);
+        }
+    };
+    pluginState.ui.show = (data) => {
+        figma.showUI(pluginState.ui.html, { width: pluginState.ui.width, height: pluginState.ui.height });
+        figma.ui.postMessage(data);
+    };
+    for (let command of menuCommands) {
+        if (figma.command === command.type) {
+            command.callback(pluginState);
+        }
+    }
+    // console.log(pluginObject)
+}
+
+module.exports = plugma;

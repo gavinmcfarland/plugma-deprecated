@@ -97,10 +97,10 @@ function cli(options) {
                     return;
                 }
                 if (stdout) {
+                    console.log(`stdout: ${stdout}`);
                     injectCode();
                     console.log(pkg.version);
                 }
-                // console.log(`stdout: ${stdout}`);
             });
         });
     }

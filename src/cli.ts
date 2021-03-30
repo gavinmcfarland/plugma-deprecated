@@ -8,29 +8,29 @@ const path = require('path')
 
 
 
-function _getCallerFile() {
-	var originalFunc = Error.prepareStackTrace;
+// function _getCallerFile() {
+// 	var originalFunc = Error.prepareStackTrace;
 
-	var callerfile;
-	try {
-		var err = new Error();
-		var currentfile;
+// 	var callerfile;
+// 	try {
+// 		var err = new Error();
+// 		var currentfile;
 
-		Error.prepareStackTrace = function (err, stack) { return stack; };
+// 		Error.prepareStackTrace = function (err, stack) { return stack; };
 
-		currentfile = err.stack.shift().getFileName();
+// 		currentfile = err.stack.shift().getFileName();
 
-		while (err.stack.length) {
-			callerfile = err.stack.shift().getFileName();
+// 		while (err.stack.length) {
+// 			callerfile = err.stack.shift().getFileName();
 
-			if (currentfile !== callerfile) break;
-		}
-	} catch (e) { }
+// 			if (currentfile !== callerfile) break;
+// 		}
+// 	} catch (e) { }
 
-	Error.prepareStackTrace = originalFunc;
+// 	Error.prepareStackTrace = originalFunc;
 
-	return callerfile;
-}
+// 	return callerfile;
+// }
 
 var location
 
@@ -153,10 +153,11 @@ export default function cli(options) {
 					return;
 				}
 				if (stdout) {
+					console.log(`stdout: ${stdout}`);
 					injectCode()
 					console.log(pkg.version)
 				}
-				// console.log(`stdout: ${stdout}`);
+
 			});
 		});
 
