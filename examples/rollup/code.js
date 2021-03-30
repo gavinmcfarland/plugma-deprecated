@@ -1,164 +1,45 @@
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+'use strict';
 
-const DYNAMIC_REQUIRE_LOADERS = Object.create(null);
-const DYNAMIC_REQUIRE_CACHE = Object.create(null);
-const DEFAULT_PARENT_MODULE = {
-	id: '<' + 'rollup>', exports: {}, parent: undefined, filename: null, loaded: false, children: [], paths: []
+var name = "Test-Plugin";
+var version = "1.0.47";
+var description = "Your Figma plugin";
+var main = "code.ts";
+var scripts = {
+	webpack: "webpack",
+	build: "rollup -c",
+	dev: "rollup -c -w"
 };
-const CHECKED_EXTENSIONS = ['', '.js', '.json'];
-
-function normalize (path) {
-	path = path.replace(/\\/g, '/');
-	const parts = path.split('/');
-	const slashed = parts[0] === '';
-	for (let i = 1; i < parts.length; i++) {
-		if (parts[i] === '.' || parts[i] === '') {
-			parts.splice(i--, 1);
-		}
-	}
-	for (let i = 1; i < parts.length; i++) {
-		if (parts[i] !== '..') continue;
-		if (i > 0 && parts[i - 1] !== '..' && parts[i - 1] !== '.') {
-			parts.splice(--i, 2);
-			i--;
-		}
-	}
-	path = parts.join('/');
-	if (slashed && path[0] !== '/')
-	  path = '/' + path;
-	else if (path.length === 0)
-	  path = '.';
-	return path;
-}
-
-function join () {
-	if (arguments.length === 0)
-	  return '.';
-	let joined;
-	for (let i = 0; i < arguments.length; ++i) {
-	  let arg = arguments[i];
-	  if (arg.length > 0) {
-		if (joined === undefined)
-		  joined = arg;
-		else
-		  joined += '/' + arg;
-	  }
-	}
-	if (joined === undefined)
-	  return '.';
-
-	return joined;
-}
-
-function isPossibleNodeModulesPath (modulePath) {
-	let c0 = modulePath[0];
-	if (c0 === '/' || c0 === '\\') return false;
-	let c1 = modulePath[1], c2 = modulePath[2];
-	if ((c0 === '.' && (!c1 || c1 === '/' || c1 === '\\')) ||
-		(c0 === '.' && c1 === '.' && (!c2 || c2 === '/' || c2 === '\\'))) return false;
-	if (c1 === ':' && (c2 === '/' || c2 === '\\'))
-		return false;
-	return true;
-}
-
-function dirname (path) {
-  if (path.length === 0)
-    return '.';
-
-  let i = path.length - 1;
-  while (i > 0) {
-    const c = path.charCodeAt(i);
-    if ((c === 47 || c === 92) && i !== path.length - 1)
-      break;
-    i--;
-  }
-
-  if (i > 0)
-    return path.substr(0, i);
-
-  if (path.chartCodeAt(0) === 47 || path.chartCodeAt(0) === 92)
-    return path.charAt(0);
-
-  return '.';
-}
-
-function commonjsResolveImpl (path, originalModuleDir, testCache) {
-	const shouldTryNodeModules = isPossibleNodeModulesPath(path);
-	path = normalize(path);
-	let relPath;
-	if (path[0] === '/') {
-		originalModuleDir = '/';
-	}
-	while (true) {
-		if (!shouldTryNodeModules) {
-			relPath = originalModuleDir ? normalize(originalModuleDir + '/' + path) : path;
-		} else if (originalModuleDir) {
-			relPath = normalize(originalModuleDir + '/node_modules/' + path);
-		} else {
-			relPath = normalize(join('node_modules', path));
-		}
-
-		if (relPath.endsWith('/..')) {
-			break; // Travelled too far up, avoid infinite loop
-		}
-
-		for (let extensionIndex = 0; extensionIndex < CHECKED_EXTENSIONS.length; extensionIndex++) {
-			const resolvedPath = relPath + CHECKED_EXTENSIONS[extensionIndex];
-			if (DYNAMIC_REQUIRE_CACHE[resolvedPath]) {
-				return resolvedPath;
-			}			if (DYNAMIC_REQUIRE_LOADERS[resolvedPath]) {
-				return resolvedPath;
-			}		}
-		if (!shouldTryNodeModules) break;
-		const nextDir = normalize(originalModuleDir + '/..');
-		if (nextDir === originalModuleDir) break;
-		originalModuleDir = nextDir;
-	}
-	return null;
-}
-
-function commonjsResolve (path, originalModuleDir) {
-	const resolvedPath = commonjsResolveImpl(path, originalModuleDir);
-	if (resolvedPath !== null) {
-		return resolvedPath;
-	}
-	return require.resolve(path);
-}
-
-function commonjsRequire (path, originalModuleDir) {
-	const resolvedPath = commonjsResolveImpl(path, originalModuleDir);
-	if (resolvedPath !== null) {
-    let cachedModule = DYNAMIC_REQUIRE_CACHE[resolvedPath];
-    if (cachedModule) return cachedModule.exports;
-    const loader = DYNAMIC_REQUIRE_LOADERS[resolvedPath];
-    if (loader) {
-      DYNAMIC_REQUIRE_CACHE[resolvedPath] = cachedModule = {
-        id: resolvedPath,
-        filename: resolvedPath,
-        path: dirname(resolvedPath),
-        exports: {},
-        parent: DEFAULT_PARENT_MODULE,
-        loaded: false,
-        children: [],
-        paths: [],
-        require: function (path, base) {
-          return commonjsRequire(path, (base === undefined || base === null) ? cachedModule.path : base);
-        }
-      };
-      try {
-        loader.call(commonjsGlobal, cachedModule, cachedModule.exports);
-      } catch (error) {
-        delete DYNAMIC_REQUIRE_CACHE[resolvedPath];
-        throw error;
-      }
-      cachedModule.loaded = true;
-      return cachedModule.exports;
-    }	}
-	return require(path);
-}
-
-commonjsRequire.cache = DYNAMIC_REQUIRE_CACHE;
-commonjsRequire.resolve = commonjsResolve;
+var author = "";
+var license = "";
+var devDependencies = {
+	"@figma/plugin-typings": "^1.19.2",
+	"@rollup/plugin-commonjs": "^17.1.0",
+	"@rollup/plugin-replace": "^2.4.1",
+	"@rollup/plugin-typescript": "^8.2.0",
+	"@types/node": "^14.14.35",
+	plugma: "0.0.0-alpha0.1",
+	rollup: "^2.41.5",
+	"rollup-plugin-inject-process-env": "^1.3.1",
+	"rollup-plugin-node-globals": "^1.4.0",
+	"rollup-plugin-node-polyfills": "^0.2.1",
+	"rollup-plugin-terser": "^7.0.2",
+	typescript: "^4.2.3",
+	yargs: "^16.2.0"
+};
+var dependencies = {
+	browserify: "^17.0.0"
+};
+var require$$0 = {
+	name: name,
+	version: version,
+	description: description,
+	main: main,
+	scripts: scripts,
+	author: author,
+	license: license,
+	devDependencies: devDependencies,
+	dependencies: dependencies
+};
 
 // TODO: Check package from working directory
 // TODO: Check versions from working directory
@@ -168,23 +49,20 @@ commonjsRequire.resolve = commonjsResolve;
 // import semver from 'semver';
 // import fs from 'fs';
 // import path from 'path';
-var versionHistory, pkg;
+var pkg;
 // var process = require('process')
-// // var process = process;
-// if (process.env.NODE_ENV === "TEST") {
-// 	// 	// versionHistory = require(process.env.VERSIONS_PATH);
-// 	// 	// pkg = require(process.env.PKG_PATH);
-// }
-// else {
-try {
-    versionHistory = commonjsRequire("./" + "package.json","/Users/limitlessloop/Sites/plugma/dist");
+{
+    pkg = require$$0;
 }
-catch (_a) {
-    versionHistory = {};
-}
-pkg = commonjsRequire("./" + "package.json","/Users/limitlessloop/Sites/plugma/dist");
+// try {
+// 	versionHistory = require("./package.json");
 // }
-console.log("./" + "package.json");
+// catch {
+// 	versionHistory = {}
+// }
+// pkg = require(process.cwd() + "/package.json");
+// }
+// console.log(process.cwd() + "/package.json");
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
 // })
@@ -202,10 +80,12 @@ console.log("./" + "package.json");
 // }
 function plugma(plugin) {
     var pluginState = {
-        version: pkg.version,
         updateAvailable: false,
         ui: {}
     };
+    if (pkg === null || pkg === void 0 ? void 0 : pkg.version) {
+        pluginState.version = pkg.version;
+    }
     // pluginState.updateAvailable = updateAvailable()
     var eventListeners = [];
     var menuCommands = [];

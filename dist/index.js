@@ -8,23 +8,23 @@
 // import semver from 'semver';
 // import fs from 'fs';
 // import path from 'path';
-var versionHistory, pkg;
+var pkg;
 // var process = require('process')
-// // var process = process;
-// if (process.env.NODE_ENV === "TEST") {
-// 	// 	// versionHistory = require(process.env.VERSIONS_PATH);
-// 	// 	// pkg = require(process.env.PKG_PATH);
-// }
-// else {
-try {
-    versionHistory = require(process.cwd() + "package.json");
+if (process.env.PKG_PATH) {
+    pkg = require(process.env.PKG_PATH);
 }
-catch (_a) {
-    versionHistory = {};
+if (process.env.VERSIONS_PATH) {
+    require(process.env.VERSIONS_PATH);
 }
-pkg = require(process.cwd() + "package.json");
+// try {
+// 	versionHistory = require("./package.json");
 // }
-console.log(process.cwd() + "package.json");
+// catch {
+// 	versionHistory = {}
+// }
+// pkg = require(process.cwd() + "/package.json");
+// }
+// console.log(process.cwd() + "/package.json");
 // fs.readFile("../package.json", (err, data) => {
 // 	console.log(err, data)
 // })
@@ -42,10 +42,12 @@ console.log(process.cwd() + "package.json");
 // }
 function plugma(plugin) {
     var pluginState = {
-        version: pkg.version,
         updateAvailable: false,
         ui: {}
     };
+    if (pkg === null || pkg === void 0 ? void 0 : pkg.version) {
+        pluginState.version = pkg.version;
+    }
     // pluginState.updateAvailable = updateAvailable()
     var eventListeners = [];
     var menuCommands = [];

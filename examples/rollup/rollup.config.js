@@ -13,6 +13,7 @@ import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 // import autoprefixer from 'autoprefixer';
+import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import path from 'path';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -83,31 +84,34 @@ export default [
 		// external: ['./versions.json'],
 		output: {
 			file: 'code.js',
-			format: 'es',
+			format: 'cjs',
 			name: 'code'
 		},
 		plugins: [
 			typescript(),
 
 			nodePolyfills(),
-			nodeResolve(),
-			json(),
-			// replace({
-			// 	'process.env.VERSIONS_PATH': JSON.stringify('./versions.json'),
-			// 	'process.env.PKG_PATH': JSON.stringify('./package.json')
-			// }),
-			commonjs({
-				dynamicRequireTargets: [
-					// include using a glob pattern (either a string or an array of strings)
-					'./*.json'
-				]
+			nodeResolve({
+				browser: true
 			}),
 			replace({
-				values: {
-					'process.cwd()': '"./"'
-				},
-				delimiters: ['', '']
+				'process.env.PKG_PATH': JSON.stringify(process.cwd() + '/package.json'),
+				'process.env.VERSIONS_PATH': JSON.stringify(process.cwd() + '/.plugma/versions.json')
 			}),
+			// replace({
+			// 	values: {
+			// 		'process.cwd()': JSON.stringify(process.cwd())
+			// 	},
+			// 	delimiters: ['', '']
+			// }),
+			commonjs(),
+			json(),
+			// injectProcessEnv({
+			// 	NODE_ENV: 'production',
+			// 	PKG_PATH: './package.json',
+			// 	VERSIONS_PATH: './package.json'
+			// }),
+
 			// globals(),
 
 

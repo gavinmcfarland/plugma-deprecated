@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.2",
   "description": "",
-  "main": "code.js",
+  "main": "code.ts",
   "scripts": {
     "build": "webpack --mode=production --stats-error-details",
     "dev": "webpack --mode=development --stats-error-details --watch"

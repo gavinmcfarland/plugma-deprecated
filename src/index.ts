@@ -14,24 +14,24 @@ var versionHistory, pkg;
 
 // var process = require('process')
 
-
-// // var process = process;
-// if (process.env.NODE_ENV === "TEST") {
-// 	// 	// versionHistory = require(process.env.VERSIONS_PATH);
-// 	// 	// pkg = require(process.env.PKG_PATH);
-// }
-// else {
-try {
-	versionHistory = require(process.cwd() + "package.json");
-}
-catch {
-	versionHistory = {}
+if (process.env.PKG_PATH) {
+	pkg = require(process.env.PKG_PATH);
 }
 
-pkg = require(process.cwd() + "package.json");
+if (process.env.VERSIONS_PATH) {
+	versionHistory = require(process.env.VERSIONS_PATH);
+}
+// try {
+// 	versionHistory = require("./package.json");
+// }
+// catch {
+// 	versionHistory = {}
 // }
 
-console.log(process.cwd() + "package.json");
+// pkg = require(process.cwd() + "/package.json");
+// }
+
+// console.log(process.cwd() + "/package.json");
 
 
 // fs.readFile("../package.json", (err, data) => {
@@ -55,9 +55,13 @@ console.log(process.cwd() + "package.json");
 
 export default function plugma(plugin) {
 	var pluginState: any = {
-		version: pkg.version,
+
 		updateAvailable: false,
 		ui: {}
+	}
+
+	if (pkg?.version) {
+		pluginState.version = pkg.version
 	}
 
 	// pluginState.updateAvailable = updateAvailable()
