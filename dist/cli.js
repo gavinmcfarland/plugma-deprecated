@@ -73,29 +73,30 @@ function cli(options) {
                 break;
             case "major":
                 versionSplit[0] += 1;
+                break;
         }
         pkg.version = versionSplit.join(".");
-        console.log(pkg.version);
         var newPkg = JSON.stringify(pkg, null, '\t');
         fs.writeFile(pathToPkg, newPkg, (err) => {
             if (err)
                 throw err;
             // console.log('Updated version number!');
-        });
-        // We need to create a new build first so that version data doesn't get duplicated
-        exec("npm run build", (error, stdout, stderr) => {
-            // if (error) {
-            // 	console.log(`error: ${error.message}`);
-            // 	return;
-            // }
-            // if (stderr) {
-            // 	console.log(`stderr: ${stderr}`);
-            // 	return;
-            // }
-            if (stdout) {
-                injectCode();
-            }
-            // console.log(`stdout: ${stdout}`);
+            // We need to create a new build first so that version data doesn't get duplicated
+            exec("npm run build", (error, stdout, stderr) => {
+                // if (error) {
+                // 	console.log(`error: ${error.message}`);
+                // 	return;
+                // }
+                // if (stderr) {
+                // 	console.log(`stderr: ${stderr}`);
+                // 	return;
+                // }
+                if (stdout) {
+                    injectCode();
+                    console.log(pkg.version);
+                }
+                // console.log(`stdout: ${stdout}`);
+            });
         });
     }
 }

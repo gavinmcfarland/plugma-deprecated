@@ -14,6 +14,7 @@ var license = "";
 var devDependencies = {
 	"@figma/plugin-typings": "^1.19.2",
 	"@rollup/plugin-commonjs": "^17.1.0",
+	"@rollup/plugin-dynamic-import-vars": "^1.1.1",
 	"@rollup/plugin-replace": "^2.4.1",
 	"@rollup/plugin-typescript": "^8.2.0",
 	"@types/node": "^14.14.35",
@@ -50,7 +51,7 @@ var require$$0 = {
 // import fs from 'fs';
 // import path from 'path';
 var pkg;
-// var process = require('process')
+
 {
     pkg = require$$0;
 }

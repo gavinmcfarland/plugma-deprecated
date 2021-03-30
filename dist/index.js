@@ -9,7 +9,7 @@
 // import fs from 'fs';
 // import path from 'path';
 var pkg;
-// var process = require('process')
+var process = require('process');
 if (process.env.PKG_PATH) {
     pkg = require(process.env.PKG_PATH);
 }

@@ -13,13 +13,23 @@ module.exports = (env, argv) => ({
 	resolve: {
 		extensions: [".tsx", ".ts", ".js", ".json"],
 		fallback: {
-			// "process": require.resolve("process/browser"),
+			"process": require.resolve("process/browser"),
+			// "path": require.resolve("path-browserify")
 			// "process": false
 		}
 	},
 	module: {
 		rules: [
 			// all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
+			{
+				test: /\.tsx?$|\.js?$/,
+				loader: 'string-replace-loader',
+				options: {
+					search: /process\.cwd\(\)/gi,
+					replace: JSON.stringify(process.cwd()), // alternatively '"/"'
+					flags: 'g'
+				}
+			},
 			{
 				test: /\.tsx?$|\.js?$/,
 				loader: 'string-replace-loader',

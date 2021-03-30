@@ -15,6 +15,7 @@ import replace from '@rollup/plugin-replace';
 // import autoprefixer from 'autoprefixer';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import path from 'path';
+import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -104,8 +105,13 @@ export default [
 			// 	},
 			// 	delimiters: ['', '']
 			// }),
-			commonjs(),
 			json(),
+			dynamicImportVars({
+				// options
+			}),
+			commonjs(),
+
+
 			// injectProcessEnv({
 			// 	NODE_ENV: 'production',
 			// 	PKG_PATH: './package.json',

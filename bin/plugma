@@ -9,7 +9,7 @@ const options = yargs.scriptName("plugma")
 	.command('version [name]', 'welcome ter yargs!', (yargs) => {
 		yargs.positional('name', {
 			type: 'string',
-			default: 'patch',
+			default: '',
 			describe: 'the semver to increment'
 		})
 	}, function (argv) {

@@ -12,7 +12,8 @@
 
 var versionHistory, pkg;
 
-// var process = require('process')
+var process = require('process')
+
 
 if (process.env.PKG_PATH) {
 	pkg = require(process.env.PKG_PATH);
@@ -113,7 +114,7 @@ export default function plugma(plugin) {
 	var pluginObject = Object.assign({}, pluginState, { commands: pluginCommands })
 
 	if (pluginCommands) {
-		for (let [key, value] of Object.entries(pluginCommands)) {
+		for (let [key, value] of Object.entries(pluginCommands) as any) {
 			// If command exists in manifest
 			if (figma.command === key) {
 				// Pass default page for ui
