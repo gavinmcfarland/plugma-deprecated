@@ -10,5 +10,5 @@
       "command": "createRectangles"
     }
   ],
-  "build": "/usr/local/bin/node plugma version"
+  "build": "/usr/local/bin/node ./node_modules/plugma/bin/plugma version patch"
 }

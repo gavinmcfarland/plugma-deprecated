@@ -4,38 +4,44 @@
 
 const fs = require('fs')
 const { exec } = require("child_process");
+const path = require('path')
 
-// function _getCallerFile() {
-// 	var originalFunc = Error.prepareStackTrace;
 
-// 	var callerfile;
-// 	try {
-// 		var err = new Error();
-// 		var currentfile;
 
-// 		Error.prepareStackTrace = function (err, stack) { return stack; };
+function _getCallerFile() {
+	var originalFunc = Error.prepareStackTrace;
 
-// 		currentfile = err.stack.shift().getFileName();
+	var callerfile;
+	try {
+		var err = new Error();
+		var currentfile;
 
-// 		while (err.stack.length) {
-// 			callerfile = err.stack.shift().getFileName();
+		Error.prepareStackTrace = function (err, stack) { return stack; };
 
-// 			if (currentfile !== callerfile) break;
-// 		}
-// 	} catch (e) { }
+		currentfile = err.stack.shift().getFileName();
 
-// 	Error.prepareStackTrace = originalFunc;
+		while (err.stack.length) {
+			callerfile = err.stack.shift().getFileName();
 
-// 	return callerfile;
-// }
+			if (currentfile !== callerfile) break;
+		}
+	} catch (e) { }
+
+	Error.prepareStackTrace = originalFunc;
+
+	return callerfile;
+}
 
 var location
 
-if (process.env.NODE_ENV === 'test') {
-	location = process.cwd() + '/src/stub/'
-} else {
+
+if (process.env.PWD.endsWith("bin")) {
+	location = path.resolve(process.env.PWD + "/../../..")
+}
+else {
 	location = process.cwd()
 }
+
 
 const pkg = require(location + "/package.json")
 
@@ -94,11 +100,13 @@ export default function cli(options) {
 		memory.lastIncrementedWithManifest = false
 	}
 
+	console.log(path.resolve(pathToMemory))
+
 	var newMemory = JSON.stringify(memory, null, '\t')
 
 	fs.writeFile(pathToMemory, newMemory, (err) => {
 		if (err) throw err;
-		// console.log('Memory updated!');
+		console.log('Memory updated!');
 	});
 
 	// if (memory.timestamp !== getFileUpdatedDate(location + "/code.js"))
@@ -109,6 +117,8 @@ export default function cli(options) {
 		// Update version number
 		var versionSplit = pkg.version.split(".")
 		versionSplit = versionSplit.map((item => parseInt(item)))
+
+		console.log(pkg.version)
 
 		switch (options.name) {
 			case "patch":
@@ -131,15 +141,17 @@ export default function cli(options) {
 			if (err) throw err;
 			// console.log('Updated version number!');
 			// We need to create a new build first so that version data doesn't get duplicated
-			exec("npm run build", (error, stdout, stderr) => {
-				// if (error) {
-				// 	console.log(`error: ${error.message}`);
-				// 	return;
-				// }
-				// if (stderr) {
-				// 	console.log(`stderr: ${stderr}`);
-				// 	return;
-				// }
+			console.log(pkg.version + " updated")
+			console.log(location)
+			exec(`npm run build --prefix ${location}`, (error, stdout, stderr) => {
+				if (error) {
+					console.log(`error: ${error.message}`);
+					return;
+				}
+				if (stderr) {
+					console.log(`stderr: ${stderr}`);
+					return;
+				}
 				if (stdout) {
 					injectCode()
 					console.log(pkg.version)
