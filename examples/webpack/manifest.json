@@ -9,5 +9,6 @@
       "name": "Create Rectangles",
       "command": "createRectangles"
     }
-  ]
+  ],
+  "build": "/usr/local/bin/node plugma version"
 }
