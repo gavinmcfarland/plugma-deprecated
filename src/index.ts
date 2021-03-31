@@ -61,6 +61,7 @@ export default function plugma(plugin) {
 		ui: {}
 	}
 
+	// console.log(pkg)
 	if (pkg?.version) {
 		pluginState.version = pkg.version
 	}

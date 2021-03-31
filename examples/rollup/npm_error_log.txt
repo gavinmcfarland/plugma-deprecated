@@ -1,0 +1,15 @@
+/Users/limitlessloop/Sites/plugma/bin/memory.json
+1.0.134
+Memory updated!
+1.0.135 updated
+/Users/limitlessloop/Sites/plugma/examples/rollup
+stderr: loaded rollup.config.js with warnings
+(!) Unused external imports
+default imported from external module 'rollup-plugin-node-globals' but never used
+default imported from external module 'rollup-plugin-inject-process-env' but never used
+default imported from external module 'path' but never used
+
+code.ts → code.js...
+(!) Plugin replace: @rollup/plugin-replace: 'preventAssignment' currently defaults to false. It is recommended to set this option to `true`, as the next major version will default this option to `true`.
+created code.js in 1.5s
+

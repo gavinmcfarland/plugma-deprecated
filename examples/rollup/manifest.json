@@ -10,5 +10,5 @@
       "command": "createRectangles"
     }
   ],
-  "build": "/usr/local/bin/node ./node_modules/plugma/bin/plugma version patch"
+  "build": "/usr/local/bin/node ./node_modules/plugma/bin/plugma version patch 2>&1 > npm_error_log.txt"
 }

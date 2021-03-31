@@ -45,6 +45,7 @@ function plugma(plugin) {
         updateAvailable: false,
         ui: {}
     };
+    // console.log(pkg)
     if (pkg === null || pkg === void 0 ? void 0 : pkg.version) {
         pluginState.version = pkg.version;
     }

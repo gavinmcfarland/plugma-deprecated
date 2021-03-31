@@ -143,7 +143,8 @@ export default function cli(options) {
 			// We need to create a new build first so that version data doesn't get duplicated
 			console.log(pkg.version + " updated")
 			console.log(location)
-			exec(`npm run build --prefix ${location}`, (error, stdout, stderr) => {
+
+			exec(`export PATH="$PATH:"/usr/local/bin/ && npm run build --prefix ${location}`, (error, stdout, stderr) => {
 				if (error) {
 					console.log(`error: ${error.message}`);
 					return;
@@ -155,7 +156,6 @@ export default function cli(options) {
 				if (stdout) {
 					console.log(`stdout: ${stdout}`);
 					injectCode()
-					console.log(pkg.version)
 				}
 
 			});

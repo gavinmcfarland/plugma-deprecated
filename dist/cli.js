@@ -6,6 +6,22 @@
 const fs = require('fs');
 const { exec } = require("child_process");
 const path = require('path');
+// function _getCallerFile() {
+// 	var originalFunc = Error.prepareStackTrace;
+// 	var callerfile;
+// 	try {
+// 		var err = new Error();
+// 		var currentfile;
+// 		Error.prepareStackTrace = function (err, stack) { return stack; };
+// 		currentfile = err.stack.shift().getFileName();
+// 		while (err.stack.length) {
+// 			callerfile = err.stack.shift().getFileName();
+// 			if (currentfile !== callerfile) break;
+// 		}
+// 	} catch (e) { }
+// 	Error.prepareStackTrace = originalFunc;
+// 	return callerfile;
+// }
 var location;
 if (process.env.PWD.endsWith("bin")) {
     location = path.resolve(process.env.PWD + "/../../..");
@@ -87,7 +103,7 @@ function cli(options) {
             // We need to create a new build first so that version data doesn't get duplicated
             console.log(pkg.version + " updated");
             console.log(location);
-            exec(`npm run build --prefix ${location}`, (error, stdout, stderr) => {
+            exec(`export PATH="$PATH:"/usr/local/bin/ && npm run build --prefix ${location}`, (error, stdout, stderr) => {
                 if (error) {
                     console.log(`error: ${error.message}`);
                     return;
@@ -99,7 +115,6 @@ function cli(options) {
                 if (stdout) {
                     console.log(`stdout: ${stdout}`);
                     injectCode();
-                    console.log(pkg.version);
                 }
             });
         });
