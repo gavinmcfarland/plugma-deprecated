@@ -64,85 +64,87 @@ function injectCode(codePath, memory) {
     });
 }
 function cli(options) {
-    var pathToMemory = __dirname + "/../bin/memory.json";
-    var pathToPkg = location + "/package.json";
-    var memory = require(pathToMemory);
-    var codePath = location + "/code.js";
-    if (typeof options.b === "string") {
-        codePath = path.resolve(location, options.b);
-    }
-    if (typeof options.i === "string") {
-        codePath = path.resolve(location, options.b);
-    }
-    // Set timestamp of when build was run was last modified
-    memory.timestamp = getFileUpdatedDate(codePath);
-    // Should increment version number?
-    var shouldIncrementVersion = false;
-    if (memory.lastIncrementedWithManifest
-        && !memory.firstTimeIncrementedWithManifest
-        && process.env.NODE_ENV === "manifest") {
-        shouldIncrementVersion = true;
-    }
-    // Change state of memory
-    if (process.env.NODE_ENV === "manifest") {
-        memory.firstTimeIncrementedWithManifest = false;
-        memory.lastIncrementedWithManifest = true;
-    }
-    else {
-        memory.lastIncrementedWithManifest = false;
-    }
-    var newMemory = JSON.stringify(memory, null, '\t');
-    fs.writeFile(pathToMemory, newMemory, (err) => {
-        if (err)
-            throw err;
-    });
-    // if (memory.timestamp !== getFileUpdatedDate(location + "/code.js"))
-    // We check to see if the CLI was used to incremenet version, because if it was we don't want to increment it before being published
-    if (shouldIncrementVersion || memory.firstTimeIncrementedWithManifest || process.env.NODE_ENV !== "manifest") {
-        // Update version number
-        var versionSplit = pkg.version.split(".");
-        versionSplit = versionSplit.map((item => parseInt(item)));
-        switch (options.name) {
-            case "patch":
-                versionSplit[2] += 1;
-                break;
-            case "minor":
-                versionSplit[1] += 1;
-                break;
-            case "major":
-                versionSplit[0] += 1;
-                break;
+    if (options._[0] === "version") {
+        var pathToMemory = __dirname + "/../bin/memory.json";
+        var pathToPkg = location + "/package.json";
+        var memory = require(pathToMemory);
+        var codePath = location + "/code.js";
+        if (typeof options.b === "string") {
+            codePath = path.resolve(location, options.b);
         }
-        pkg.version = versionSplit.join(".");
-        var newPkg = JSON.stringify(pkg, null, '\t');
-        fs.writeFile(pathToPkg, newPkg, (err) => {
+        if (typeof options.i === "string") {
+            codePath = path.resolve(location, options.b);
+        }
+        // Set timestamp of when build was run was last modified
+        memory.timestamp = getFileUpdatedDate(codePath);
+        // Should increment version number?
+        var shouldIncrementVersion = false;
+        if (memory.lastIncrementedWithManifest
+            && !memory.firstTimeIncrementedWithManifest
+            && process.env.NODE_ENV === "manifest") {
+            shouldIncrementVersion = true;
+        }
+        // Change state of memory
+        if (process.env.NODE_ENV === "manifest") {
+            memory.firstTimeIncrementedWithManifest = false;
+            memory.lastIncrementedWithManifest = true;
+        }
+        else {
+            memory.lastIncrementedWithManifest = false;
+        }
+        var newMemory = JSON.stringify(memory, null, '\t');
+        fs.writeFile(pathToMemory, newMemory, (err) => {
             if (err)
                 throw err;
-            if (options.b || options.build || options.i) {
-                // console.log('Updated version number!');
-                // We need to create a new build first so that version data doesn't get duplicated
-                // function shouldReinject() {
-                // 	return getFileUpdatedDate(codePath).toString() === memory.timestamp.toString()
-                // }
-                if (options.i) {
-                    // Need to make sure not injected when code already been injected
-                    injectCode(codePath, memory);
-                }
-                else if (options.b || options.build) {
-                    exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
-                        if (error) {
-                            console.log(`error: ${error.message}`);
-                            return;
-                        }
-                        if (stdout) {
-                            // console.log(`stdout: ${stdout}`);
-                            injectCode(codePath, memory);
-                        }
-                    });
-                }
-            }
         });
-        console.log(`v${pkg.version}`);
+        // if (memory.timestamp !== getFileUpdatedDate(location + "/code.js"))
+        // We check to see if the CLI was used to incremenet version, because if it was we don't want to increment it before being published
+        if (shouldIncrementVersion || memory.firstTimeIncrementedWithManifest || process.env.NODE_ENV !== "manifest") {
+            // Update version number
+            var versionSplit = pkg.version.split(".");
+            versionSplit = versionSplit.map((item => parseInt(item)));
+            switch (options.name) {
+                case "patch":
+                    versionSplit[2] += 1;
+                    break;
+                case "minor":
+                    versionSplit[1] += 1;
+                    break;
+                case "major":
+                    versionSplit[0] += 1;
+                    break;
+            }
+            pkg.version = versionSplit.join(".");
+            var newPkg = JSON.stringify(pkg, null, '\t');
+            fs.writeFile(pathToPkg, newPkg, (err) => {
+                if (err)
+                    throw err;
+                if (options.b || options.build || options.i) {
+                    // console.log('Updated version number!');
+                    // We need to create a new build first so that version data doesn't get duplicated
+                    // function shouldReinject() {
+                    // 	return getFileUpdatedDate(codePath).toString() === memory.timestamp.toString()
+                    // }
+                    if (options.i) {
+                        // Need to make sure not injected when code already been injected
+                        injectCode(codePath, memory);
+                    }
+                    else if (options.b || options.build) {
+                        exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
+                            if (error) {
+                                console.log(`error: ${error.message}`);
+                                return;
+                            }
+                            if (stdout) {
+                                // console.log(`stdout: ${stdout}`);
+                                injectCode(codePath, memory);
+                            }
+                        });
+                    }
+                }
+            });
+            console.log(`v${pkg.version}`);
+        }
     }
 }
 

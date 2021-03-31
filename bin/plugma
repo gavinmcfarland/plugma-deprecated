@@ -5,15 +5,24 @@ const cli = require("../dist/cli.js")
 const yargs = require('yargs')
 
 const options = yargs.scriptName("plugma")
-	.usage('Usage: $0 <cmd> [args]')
-	.command('version [name]', 'welcome ter yargs!', (yargs) => {
+	.usage('Usage: $0 <cmd> [args] -b [path]')
+	.command('version [name]', '', (yargs) => {
 		yargs.positional('name', {
 			type: 'string',
 			default: '',
-			describe: 'the semver to increment'
+			describe: 'semver to increment',
+			choices: ['patch', 'minor', 'major', '']
 		})
 	}, function (argv) {
 		// console.log('[plugma]', argv.name)
+	})
+	.option('build', {
+		alias: 'b',
+		describe: 'optional path to code.js file'
+	})
+	.option('inject', {
+		alias: 'i',
+		describe: 'only inject version data'
 	})
 	.help()
 	.argv
