@@ -89,16 +89,16 @@ There is a simple method for listening for messages from the UI using `plugin.on
 
 ```js
 plugin.on('buttonPressed', (message) => {
-
+    console.log('do something!')
 })
 ```
 
 ### Version Management
 
-Easily communicate new features with your users by keeping track of changes via the `plugma` CLI (alternatively you can use `npm version`). Plugma automatically add version data on build so you can target documents and nodes created by past versions of your plugin.
+Easily communicate new features with your users by keeping track of changes via the `plugma` CLI (alternatively you can use `npm version`). Plugma can automatically inject version data on build (using `-b` flag) so you can target documents and nodes created by past versions of your plugin.
 
 ```bash
-plugma version [patch|minor|major]
+plugma version [patch|minor|major] -b
 ```
 
 ## Installation

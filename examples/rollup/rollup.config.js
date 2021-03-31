@@ -16,6 +16,7 @@ import replace from '@rollup/plugin-replace';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import path from 'path';
 import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
+import execute from 'rollup-plugin-execute'
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -110,6 +111,11 @@ export default [
 				// options
 			}),
 			commonjs(),
+			// execute([
+			// 	'plugma version',
+			// ], {
+			// 	hooks: ['writeBundle'],
+			// }),
 
 
 			// injectProcessEnv({

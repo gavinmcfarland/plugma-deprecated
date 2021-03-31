@@ -7,31 +7,6 @@ const { exec } = require("child_process");
 const path = require('path')
 
 
-
-// function _getCallerFile() {
-// 	var originalFunc = Error.prepareStackTrace;
-
-// 	var callerfile;
-// 	try {
-// 		var err = new Error();
-// 		var currentfile;
-
-// 		Error.prepareStackTrace = function (err, stack) { return stack; };
-
-// 		currentfile = err.stack.shift().getFileName();
-
-// 		while (err.stack.length) {
-// 			callerfile = err.stack.shift().getFileName();
-
-// 			if (currentfile !== callerfile) break;
-// 		}
-// 	} catch (e) { }
-
-// 	Error.prepareStackTrace = originalFunc;
-
-// 	return callerfile;
-// }
-
 var location
 
 if (process.env.PWD.endsWith("bin")) {
@@ -56,11 +31,15 @@ const getFileUpdatedDate = (path) => {
 	return stats.mtime
 }
 
-function injectCode() {
+function injectCode(codePath) {
 
-	fs.readFile(location + "/code.js", "utf8", (err, data) => {
+	fs.readFile(codePath, "utf8", (err, data) => {
 		// 1. First search for variable with match.
 		// 2. Then search for matches within.
+		if (err) {
+			throw err
+		}
+
 		data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
 
 			var matches = []
@@ -76,7 +55,7 @@ function injectCode() {
 
 		})
 
-		fs.writeFile(location + "/code.js", data, (err) => {
+		fs.writeFile(codePath, data, (err) => {
 			if (err) throw err;
 			// console.log('Version data added');
 		});
@@ -142,28 +121,53 @@ export default function cli(options) {
 
 		var newPkg = JSON.stringify(pkg, null, '\t')
 
-		fs.writeFile(pathToPkg, newPkg, (err) => {
-			if (err) throw err;
-			// console.log('Updated version number!');
-			// We need to create a new build first so that version data doesn't get duplicated
+		console.log(options)
+
+		if (options.b || options.build || options.i) {
+			fs.writeFile(pathToPkg, newPkg, (err) => {
+				if (err) throw err;
+				// console.log('Updated version number!');
+				// We need to create a new build first so that version data doesn't get duplicated
 
 
-			exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
-				if (error) {
-					console.log(`error: ${error.message}`);
-					return;
+				var codePath = location + "/code.js"
+
+				if (typeof options.b === "string") {
+					codePath = path.resolve(location, options.b)
 				}
-				if (stderr) {
-					// console.log(`stderr: ${stderr}`);
+
+				if (typeof options.i === "string") {
+					codePath = path.resolve(location, options.b)
 				}
-				if (stdout) {
-					// console.log(`stdout: ${stdout}`);
-					injectCode()
-					console.log(`v${pkg.version}`)
+
+				console.log(codePath)
+
+				if (options.i) {
+					injectCode(codePath)
+				}
+
+				else if (options.b || options.build) {
+					exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
+						if (error) {
+							console.log(`error: ${error.message}`);
+							return;
+						}
+						if (stderr) {
+							// console.log(`stderr: ${stderr}`);
+						}
+						if (stdout) {
+							// console.log(`stdout: ${stdout}`);
+							injectCode(codePath)
+						}
+
+					});
 				}
 
 			});
-		});
+		}
+
+
+		console.log(`v${pkg.version}`)
 
 
 
