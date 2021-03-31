@@ -34,9 +34,15 @@ const path = require('path')
 
 var location
 
-
 if (process.env.PWD.endsWith("bin")) {
-	location = path.resolve(process.env.PWD + "/../../..")
+	if (process.env.PWD.endsWith(".bin")) {
+
+		location = path.resolve(process.env.PWD + "/../..")
+	}
+	else {
+		location = path.resolve(process.env.PWD + "/../../..")
+	}
+
 }
 else {
 	location = process.cwd()
@@ -100,13 +106,12 @@ export default function cli(options) {
 		memory.lastIncrementedWithManifest = false
 	}
 
-	console.log(path.resolve(pathToMemory))
 
 	var newMemory = JSON.stringify(memory, null, '\t')
 
 	fs.writeFile(pathToMemory, newMemory, (err) => {
 		if (err) throw err;
-		console.log('Memory updated!');
+
 	});
 
 	// if (memory.timestamp !== getFileUpdatedDate(location + "/code.js"))
@@ -118,7 +123,7 @@ export default function cli(options) {
 		var versionSplit = pkg.version.split(".")
 		versionSplit = versionSplit.map((item => parseInt(item)))
 
-		console.log(pkg.version)
+
 
 		switch (options.name) {
 			case "patch":
@@ -142,19 +147,18 @@ export default function cli(options) {
 			// console.log('Updated version number!');
 			// We need to create a new build first so that version data doesn't get duplicated
 			console.log(pkg.version + " updated")
-			console.log(location)
 
-			exec(`export PATH="$PATH:"/usr/local/bin/ && npm run build --prefix ${location}`, (error, stdout, stderr) => {
+			exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
 				if (error) {
 					console.log(`error: ${error.message}`);
 					return;
 				}
 				if (stderr) {
-					console.log(`stderr: ${stderr}`);
+					// console.log(`stderr: ${stderr}`);
 					return;
 				}
 				if (stdout) {
-					console.log(`stdout: ${stdout}`);
+					// console.log(`stdout: ${stdout}`);
 					injectCode()
 				}
 
