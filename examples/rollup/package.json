@@ -1,6 +1,6 @@
 {
 	"name": "Test-Plugin",
-	"version": "2.0.152",
+	"version": "2.0.153",
 	"description": "Your Figma plugin",
 	"main": "code.ts",
 	"scripts": {
