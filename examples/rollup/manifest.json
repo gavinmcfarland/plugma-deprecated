@@ -1,6 +1,6 @@
 {
   "name": "DO NOT PUBLISH",
-  "id": "954487438999338283",
+  "id": "",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
@@ -10,5 +10,5 @@
       "command": "createRectangles"
     }
   ],
-  "build": "/usr/local/bin/node ./node_modules/.bin/plugma version patch 2>&1 > npm_error_log.txt"
+  "build": "/usr/local/bin/node ./node_modules/.bin/plugma version 2>&1 > npm_error_log.txt"
 }
