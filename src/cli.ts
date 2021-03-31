@@ -121,8 +121,6 @@ export default function cli(options) {
 
 		var newPkg = JSON.stringify(pkg, null, '\t')
 
-		console.log(options)
-
 		if (options.b || options.build || options.i) {
 			fs.writeFile(pathToPkg, newPkg, (err) => {
 				if (err) throw err;
@@ -140,7 +138,6 @@ export default function cli(options) {
 					codePath = path.resolve(location, options.b)
 				}
 
-				console.log(codePath)
 
 				if (options.i) {
 					injectCode(codePath)
