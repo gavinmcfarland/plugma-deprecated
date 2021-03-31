@@ -18,7 +18,7 @@ const options = yargs.scriptName("plugma")
 	})
 	.option('build', {
 		alias: 'b',
-		describe: 'optional path to code.js file'
+		describe: 'optional path to code.js'
 	})
 	.option('inject', {
 		alias: 'i',
