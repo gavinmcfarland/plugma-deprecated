@@ -1,6 +1,6 @@
 {
   "name": "plugma",
-  "version": "0.0.0-alpha0.4",
+  "version": "0.0.0-alpha0.5",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w"
