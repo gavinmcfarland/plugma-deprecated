@@ -51,7 +51,7 @@ function injectCode() {
         fs.writeFile(location + "/code.js", data, (err) => {
             if (err)
                 throw err;
-            console.log('The file has been saved!');
+            // console.log('Version data added');
         });
     });
 }
@@ -103,19 +103,15 @@ function cli(options) {
                 throw err;
             // console.log('Updated version number!');
             // We need to create a new build first so that version data doesn't get duplicated
-            console.log(pkg.version + " updated");
             exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
                 if (error) {
                     console.log(`error: ${error.message}`);
                     return;
                 }
-                if (stderr) {
-                    // console.log(`stderr: ${stderr}`);
-                    return;
-                }
                 if (stdout) {
                     // console.log(`stdout: ${stdout}`);
                     injectCode();
+                    console.log(`v${pkg.version}`);
                 }
             });
         });
