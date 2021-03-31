@@ -6,22 +6,6 @@
 const fs = require('fs');
 const { exec } = require("child_process");
 const path = require('path');
-// function _getCallerFile() {
-// 	var originalFunc = Error.prepareStackTrace;
-// 	var callerfile;
-// 	try {
-// 		var err = new Error();
-// 		var currentfile;
-// 		Error.prepareStackTrace = function (err, stack) { return stack; };
-// 		currentfile = err.stack.shift().getFileName();
-// 		while (err.stack.length) {
-// 			callerfile = err.stack.shift().getFileName();
-// 			if (currentfile !== callerfile) break;
-// 		}
-// 	} catch (e) { }
-// 	Error.prepareStackTrace = originalFunc;
-// 	return callerfile;
-// }
 var location;
 if (process.env.PWD.endsWith("bin")) {
     if (process.env.PWD.endsWith(".bin")) {
@@ -35,33 +19,63 @@ else {
     location = process.cwd();
 }
 const pkg = require(location + "/package.json");
-function injectCode(codePath) {
+const getFileUpdatedDate = (path) => {
+    const stats = fs.statSync(path);
+    return stats.mtime;
+};
+function injectCode(codePath, memory) {
     fs.readFile(codePath, "utf8", (err, data) => {
         // 1. First search for variable with match.
         // 2. Then search for matches within.
         if (err) {
             throw err;
         }
-        data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
-            var matches = [];
-            match.replace(/(\w+)\s*=\s*figma\./gmi, (match, p1, p2, p3, offset, string) => {
-                matches.push(p1);
-            });
-            matches = matches.map((item) => `${item}.setPluginData("version", ${JSON.stringify(pkg.version)})`);
-            var newString = matches.join(";") + ";";
-            return match + newString;
-        });
-        fs.writeFile(codePath, data, (err) => {
-            if (err)
-                throw err;
-            // console.log('Version data added');
-        });
+        function getVersionData() {
+            var match = data.match(/^\/\/ pluginVersion=(.+)[\s|\n]*/);
+            if (match) {
+                data = data.replace(/^\/\/ pluginVersion=(.+)[\s|\n]*/, "");
+                return match[1];
+            }
+            else {
+                return false;
+            }
+        }
+        // Don't inject code unless different from current version
+        if (getVersionData() !== pkg.version) {
+            // Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
+            if (getFileUpdatedDate(codePath).toString() !== memory.timestamp.toString()) {
+                data = `// pluginVersion=${pkg.version}\n` + data;
+                data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
+                    var matches = [];
+                    match.replace(/(\w+)\s*=\s*figma\./gmi, (match, p1, p2, p3, offset, string) => {
+                        matches.push(p1);
+                    });
+                    matches = matches.map((item) => `${item}.setPluginData("version", ${JSON.stringify(pkg.version)})`);
+                    var newString = matches.join(";") + ";";
+                    return match + newString;
+                });
+                fs.writeFile(codePath, data, (err) => {
+                    if (err)
+                        throw err;
+                    // console.log('Version data added');
+                });
+            }
+        }
     });
 }
 function cli(options) {
     var pathToMemory = __dirname + "/../bin/memory.json";
     var pathToPkg = location + "/package.json";
     var memory = require(pathToMemory);
+    var codePath = location + "/code.js";
+    if (typeof options.b === "string") {
+        codePath = path.resolve(location, options.b);
+    }
+    if (typeof options.i === "string") {
+        codePath = path.resolve(location, options.b);
+    }
+    // Set timestamp of when build was run was last modified
+    memory.timestamp = getFileUpdatedDate(codePath);
     // Should increment version number?
     var shouldIncrementVersion = false;
     if (memory.lastIncrementedWithManifest
@@ -101,23 +115,18 @@ function cli(options) {
         }
         pkg.version = versionSplit.join(".");
         var newPkg = JSON.stringify(pkg, null, '\t');
-        console.log(options);
-        if (options.b || options.build || options.i) {
-            fs.writeFile(pathToPkg, newPkg, (err) => {
-                if (err)
-                    throw err;
+        fs.writeFile(pathToPkg, newPkg, (err) => {
+            if (err)
+                throw err;
+            if (options.b || options.build || options.i) {
                 // console.log('Updated version number!');
                 // We need to create a new build first so that version data doesn't get duplicated
-                var codePath = location + "/code.js";
-                if (typeof options.b === "string") {
-                    codePath = path.resolve(location, options.b);
-                }
-                if (typeof options.i === "string") {
-                    codePath = path.resolve(location, options.b);
-                }
-                console.log(codePath);
+                // function shouldReinject() {
+                // 	return getFileUpdatedDate(codePath).toString() === memory.timestamp.toString()
+                // }
                 if (options.i) {
-                    injectCode(codePath);
+                    // Need to make sure not injected when code already been injected
+                    injectCode(codePath, memory);
                 }
                 else if (options.b || options.build) {
                     exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
@@ -127,12 +136,12 @@ function cli(options) {
                         }
                         if (stdout) {
                             // console.log(`stdout: ${stdout}`);
-                            injectCode(codePath);
+                            injectCode(codePath, memory);
                         }
                     });
                 }
-            });
-        }
+            }
+        });
         console.log(`v${pkg.version}`);
     }
 }

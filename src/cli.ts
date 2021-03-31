@@ -31,7 +31,7 @@ const getFileUpdatedDate = (path) => {
 	return stats.mtime
 }
 
-function injectCode(codePath) {
+function injectCode(codePath, memory) {
 
 	fs.readFile(codePath, "utf8", (err, data) => {
 		// 1. First search for variable with match.
@@ -40,25 +40,47 @@ function injectCode(codePath) {
 			throw err
 		}
 
-		data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
+		function getVersionData() {
+			var match = data.match(/^\/\/ pluginVersion=(.+)[\s|\n]*/)
 
-			var matches = []
-			match.replace(/(\w+)\s*=\s*figma\./gmi, (match, p1, p2, p3, offset, string) => {
-				matches.push(p1)
-			})
+			if (match) {
+				data = data.replace(/^\/\/ pluginVersion=(.+)[\s|\n]*/, "")
+				return match[1]
+			}
+			else {
+				return false
+			}
+		}
 
-			matches = matches.map((item) => `${item}.setPluginData("version", ${JSON.stringify(pkg.version)})`)
+		// Don't inject code unless different from current version
+		if (getVersionData() !== pkg.version) {
 
-			var newString = matches.join(";") + ";"
+			// Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
+			if (getFileUpdatedDate(codePath).toString() !== memory.timestamp.toString()) {
+				data = `// pluginVersion=${pkg.version}\n` + data
 
-			return match + newString
+				data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
 
-		})
+					var matches = []
+					match.replace(/(\w+)\s*=\s*figma\./gmi, (match, p1, p2, p3, offset, string) => {
+						matches.push(p1)
+					})
 
-		fs.writeFile(codePath, data, (err) => {
-			if (err) throw err;
-			// console.log('Version data added');
-		});
+					matches = matches.map((item) => `${item}.setPluginData("version", ${JSON.stringify(pkg.version)})`)
+
+					var newString = matches.join(";") + ";"
+
+					return match + newString
+
+				})
+
+				fs.writeFile(codePath, data, (err) => {
+					if (err) throw err;
+					// console.log('Version data added');
+				});
+			}
+		}
+
 	})
 }
 
@@ -66,6 +88,20 @@ export default function cli(options) {
 	var pathToMemory = __dirname + "/../bin/memory.json"
 	var pathToPkg = location + "/package.json"
 	var memory = require(pathToMemory)
+
+	var codePath = location + "/code.js"
+
+	if (typeof options.b === "string") {
+		codePath = path.resolve(location, options.b)
+	}
+
+	if (typeof options.i === "string") {
+		codePath = path.resolve(location, options.b)
+	}
+
+	// Set timestamp of when build was run was last modified
+
+	memory.timestamp = getFileUpdatedDate(codePath)
 
 
 	// Should increment version number?
@@ -121,26 +157,22 @@ export default function cli(options) {
 
 		var newPkg = JSON.stringify(pkg, null, '\t')
 
-		if (options.b || options.build || options.i) {
-			fs.writeFile(pathToPkg, newPkg, (err) => {
-				if (err) throw err;
+
+		fs.writeFile(pathToPkg, newPkg, (err) => {
+			if (err) throw err;
+
+			if (options.b || options.build || options.i) {
 				// console.log('Updated version number!');
 				// We need to create a new build first so that version data doesn't get duplicated
-
-
-				var codePath = location + "/code.js"
-
-				if (typeof options.b === "string") {
-					codePath = path.resolve(location, options.b)
-				}
-
-				if (typeof options.i === "string") {
-					codePath = path.resolve(location, options.b)
-				}
-
+				// function shouldReinject() {
+				// 	return getFileUpdatedDate(codePath).toString() === memory.timestamp.toString()
+				// }
 
 				if (options.i) {
-					injectCode(codePath)
+
+					// Need to make sure not injected when code already been injected
+					injectCode(codePath, memory)
+
 				}
 
 				else if (options.b || options.build) {
@@ -154,14 +186,15 @@ export default function cli(options) {
 						}
 						if (stdout) {
 							// console.log(`stdout: ${stdout}`);
-							injectCode(codePath)
+							injectCode(codePath, memory)
 						}
 
 					});
 				}
 
-			});
-		}
+			}
+		});
+
 
 
 		console.log(`v${pkg.version}`)
