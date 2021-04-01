@@ -14,7 +14,7 @@ Plugma is a small framework and CLI that makes it easier to develop and maintain
 - Convenient methods for message handling, menu commands, showing and posting to UI and more
 - A single reference for managing plugin state more easily throughout your code
 - Find documents and nodes created by past versions of your plugin
-<!-- - Keep track of changes using the CLI  -->
+- Keep track of changes using the CLI 
 
 ## Example
 
@@ -95,15 +95,19 @@ plugin.on('buttonPressed', (message) => {
 
 ### Version Tracking
 
-Easily communicate new features with your users by keeping track of changes via the `plugma` CLI (alternatively you can use `npm version`). Plugma can automatically inject version data on build (using `-b` flag) so you can target documents and nodes created by past versions of your plugin.
+Easily communicate new features with your users by keeping track of changes via the `plugma` CLI.
 
 ```bash
-plugma version [patch|minor|major] -b
+plugma version [patch|minor|major] -m "New feature"
 ```
 
 #### Injecting Data
 
-Using the `-i` or `-b` flag, Plugma will inject plugin verison data into the plugin's compiled `code.js` file.
+Using the `-i` or `-b` flag, Plugma will inject plugin verison data into the plugin's compiled `code.js` file so you can target documents and nodes created by past versions of your plugin.
+
+```bash
+plugma version -b
+```
 
 This includes:
 
