@@ -57,7 +57,10 @@ function injectCode(codePath, memory) {
 
 			// Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
 			if (getFileUpdatedDate(codePath).toString() !== memory.timestamp.toString()) {
-				data = `// pluginVersion=${pkg.version}\n` + data
+				data = `// pluginVersion=${pkg.version}\n` +
+					`figma.clientStorage.setAsync("pluginVersion", ${JSON.stringify(pkg.version)})\n` +
+					`figma.root.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})\n`
+					+ data
 
 				data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
 
@@ -66,7 +69,7 @@ function injectCode(codePath, memory) {
 						matches.push(p1)
 					})
 
-					matches = matches.map((item) => `${item}.setPluginData("version", ${JSON.stringify(pkg.version)})`)
+					matches = matches.map((item) => `${item}.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})`)
 
 					var newString = matches.join(";") + ";"
 
