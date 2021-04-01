@@ -111,6 +111,14 @@ This includes:
 - `figma.root.setSharedPluginData()`
 - `node.setSharedPluginData()`
 
+#### Setting `code.js` path
+
+By default Plugma looks for a `code.js` file in the root of your project. Set a different path by passing a value after the `-i` or `-b` flag.
+
+```bash
+plugma version patch -b ./public/code.js
+```
+
 ## Installation
 
 ### Install as dev dependency

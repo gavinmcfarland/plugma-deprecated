@@ -87,9 +87,84 @@ function injectCode(codePath, memory) {
 	})
 }
 
+function updateVersionLog(pathToVersionLog, options) {
+	var pathToTemporyFile = __dirname + "/../bin/message.md"
+
+	function addVersion() {
+		// Update version log
+
+
+		fs.readFile(pathToVersionLog, "utf8", (err, data) => {
+
+			if (err) throw err;
+
+			data = JSON.parse(data)
+
+			// If using an array
+			// data.unshift({ [`${pkg.version}`]: [] })
+
+			// If using object
+			// data[pkg.version] = [];
+
+
+			fs.readFile(pathToTemporyFile, "utf8", (err, data2) => {
+				var content
+
+				if (options.m === true) {
+					// Split string into a list and remove empty lines
+					content = data2.split('\n').filter((item) => item !== '')
+				}
+				else if (typeof options.m === "string") {
+					content = [options.m]
+				}
+
+				// Convert to array
+				data = Object.entries(data)
+
+				// Add new info to top
+				data.unshift([[`${pkg.version}`], content])
+
+				// Convert back to object
+				data = Object.fromEntries(data)
+
+
+				fs.writeFile(pathToVersionLog, JSON.stringify(data, null, '\t'), (err) => {
+					if (err) throw err
+
+					// Reset tmp file back to being blank
+					fs.readFile(pathToTemporyFile, "utf8", (err, data2) => {
+						fs.writeFile(pathToTemporyFile, "", (err) => {
+							if (err) throw err
+						})
+					})
+				})
+			})
+
+
+
+		})
+
+	}
+
+	if (options.m == true) {
+		var editor = require('editor')
+		editor(pathToTemporyFile, function (code, sig) {
+			addVersion()
+			// console.log('finished editing with code ' + code + sig);
+		});
+
+	}
+
+	if (typeof options.m === "string") {
+		addVersion()
+	}
+
+}
+
 export default function cli(options) {
 	if (options._[0] === "version") {
 		var pathToMemory = __dirname + "/../bin/memory.json"
+		var pathToVersionLog = location + "/.plugma/versions.json"
 		var pathToPkg = location + "/package.json"
 		var memory = require(pathToMemory)
 
@@ -162,6 +237,7 @@ export default function cli(options) {
 			var newPkg = JSON.stringify(pkg, null, '\t')
 
 
+			// Update new version number and inject code
 			fs.writeFile(pathToPkg, newPkg, (err) => {
 				if (err) throw err;
 
@@ -197,6 +273,9 @@ export default function cli(options) {
 					}
 
 				}
+
+				// Update version log
+				updateVersionLog(pathToVersionLog, options)
 			});
 
 

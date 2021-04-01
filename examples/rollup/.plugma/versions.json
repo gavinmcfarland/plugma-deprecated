@@ -1,16 +1,50 @@
 {
-    "1.1.0": [
-        {
-            "type": "new",
-            "description": "",
-            "action": "upgradeTables"
-        }
-    ],
-    "1.0.1": [
-        { "fix": "Description" }
-    ],
-    "1.0.0": [
-        { "new": "Description" },
-        { "fix": "Description" }
-    ]
+	"2.0.362": [
+		"yes yes yes"
+	],
+	"2.0.361": [],
+	"2.0.360": [
+		"this is another update"
+	],
+	"2.0.359": [
+		"this is an update"
+	],
+	"2.0.358": [
+		[
+			"hellllllo",
+			"hello",
+			"slls"
+		]
+	],
+	"2.0.357": [
+		[
+			"hellllllo"
+		]
+	],
+	"2.0.356": [
+		[
+			"hellllllo",
+			""
+		]
+	],
+	"2.0.355": [
+		[
+			"some other comment",
+			"",
+			"test",
+			"",
+			"another",
+			"test",
+			""
+		]
+	],
+	"2.0.354": [
+		"some other comment\n"
+	],
+	"2.0.353": [
+		"testing"
+	],
+	"2.0.327": [
+		"hello now"
+	]
 }

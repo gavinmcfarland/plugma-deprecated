@@ -25,6 +25,7 @@
     "yargs": "^16.2.0"
   },
   "dependencies": {
+    "editor": "^1.0.0",
     "rollup-plugin-typescript": "^1.0.1"
   }
 }
