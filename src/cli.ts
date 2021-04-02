@@ -2,6 +2,10 @@
  * This scripts appends the current version number to every node created.
  */
 
+// TODO: Warn user if main file can't be found
+// TODO: Warn user if versions file can't be found
+const chalk = require('chalk');
+
 const fs = require('fs')
 const { exec } = require("child_process");
 const path = require('path')
@@ -27,13 +31,22 @@ else {
 const pkg = require(location + "/package.json")
 
 const getFileUpdatedDate = (path) => {
-	const stats = fs.statSync(path)
+	var stats;
+
+	try {
+		stats = fs.statSync(path)
+	}
+	catch (e) {
+		console.error(`[plugma] Cannot find ${chalk.inverse('main')} file at: ${e.path} \n`)
+	}
+
 	return stats.mtime
+
 }
 
-function injectCode(codePath, memory) {
+function injectCode(pathToCode, memory) {
 
-	fs.readFile(codePath, "utf8", (err, data) => {
+	fs.readFile(pathToCode, "utf8", (err, data) => {
 		// 1. First search for variable with match.
 		// 2. Then search for matches within.
 		if (err) {
@@ -56,7 +69,7 @@ function injectCode(codePath, memory) {
 		if (getVersionData() !== pkg.version) {
 
 			// Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
-			if (getFileUpdatedDate(codePath).toString() !== memory.timestamp.toString()) {
+			if (getFileUpdatedDate(pathToCode).toString() !== memory.timestamp.toString()) {
 				data = `// pluginVersion=${pkg.version}\n` +
 					`figma.clientStorage.setAsync("pluginVersion", ${JSON.stringify(pkg.version)})\n` +
 					`figma.root.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})\n`
@@ -77,7 +90,7 @@ function injectCode(codePath, memory) {
 
 				})
 
-				fs.writeFile(codePath, data, (err) => {
+				fs.writeFile(pathToCode, data, (err) => {
 					if (err) throw err;
 					// console.log('Version data added');
 				});
@@ -88,75 +101,83 @@ function injectCode(codePath, memory) {
 }
 
 function updateVersionLog(pathToVersionLog, options) {
-	var pathToTemporyFile = __dirname + "/../bin/message.md"
 
-	function addVersion() {
-		// Update version log
+	if (options.name !== '') {
+		var pathToTemporyFile = __dirname + "/../bin/message.md"
 
-
-		fs.readFile(pathToVersionLog, "utf8", (err, data) => {
-
-			if (err) throw err;
-
-			data = JSON.parse(data)
-
-			// If using an array
-			// data.unshift({ [`${pkg.version}`]: [] })
-
-			// If using object
-			// data[pkg.version] = [];
+		function addVersion() {
+			// Update version log
 
 
-			fs.readFile(pathToTemporyFile, "utf8", (err, data2) => {
-				var content
+			fs.readFile(pathToVersionLog, "utf8", (e, data) => {
 
-				if (options.m === true) {
-					// Split string into a list and remove empty lines
-					content = data2.split('\n').filter((item) => item !== '')
-				}
-				else if (typeof options.m === "string") {
-					content = [options.m]
+				if (e) {
+					console.error(`[plugma] Cannot find ${chalk.inverse('versions')} file at: ${e.path} \n`)
 				}
 
-				// Convert to array
-				data = Object.entries(data)
+				data = JSON.parse(data)
 
-				// Add new info to top
-				data.unshift([[`${pkg.version}`], content])
+				// If using an array
+				// data.unshift({ [`${pkg.version}`]: [] })
 
-				// Convert back to object
-				data = Object.fromEntries(data)
+				// If using object
+				// data[pkg.version] = [];
 
 
-				fs.writeFile(pathToVersionLog, JSON.stringify(data, null, '\t'), (err) => {
-					if (err) throw err
+				fs.readFile(pathToTemporyFile, "utf8", (err, data2) => {
+					var content
 
-					// Reset tmp file back to being blank
-					fs.readFile(pathToTemporyFile, "utf8", (err, data2) => {
-						fs.writeFile(pathToTemporyFile, "", (err) => {
-							if (err) throw err
+					if (options.m === true) {
+						// Split string into a list and remove empty lines
+						content = data2.split('\n').filter((item) => item !== '')
+					}
+					else if (typeof options.m === "string") {
+						content = [options.m]
+					}
+
+					// Convert to array
+					data = Object.entries(data)
+
+					// Add new info to top
+					data.unshift([[`${pkg.version}`], content])
+
+					// Convert back to object
+					data = Object.fromEntries(data)
+
+
+					fs.writeFile(pathToVersionLog, JSON.stringify(data, null, '\t'), (err) => {
+						if (err) throw err
+
+						// Reset tmp file back to being blank
+						fs.readFile(pathToTemporyFile, "utf8", (err, data2) => {
+							fs.writeFile(pathToTemporyFile, "", (err) => {
+								if (err) throw err
+							})
 						})
 					})
 				})
+
+
+
 			})
 
+		}
 
+		if (options.m == true) {
+			var editor = require('editor')
+			editor(pathToTemporyFile, function (code, sig) {
+				addVersion()
+				// console.log('finished editing with code ' + code + sig);
+			});
 
-		})
+		}
 
-	}
-
-	if (options.m == true) {
-		var editor = require('editor')
-		editor(pathToTemporyFile, function (code, sig) {
+		if (typeof options.m === "string") {
 			addVersion()
-			// console.log('finished editing with code ' + code + sig);
-		});
-
+		}
 	}
-
-	if (typeof options.m === "string") {
-		addVersion()
+	else if (options.m) {
+		console.error(`Please provide a version ${chalk.underline('name')}`)
 	}
 
 }
@@ -168,19 +189,19 @@ export default function cli(options) {
 		var pathToPkg = location + "/package.json"
 		var memory = require(pathToMemory)
 
-		var codePath = location + "/code.js"
+		var pathToCode = location + "/code.js"
 
 		if (typeof options.b === "string") {
-			codePath = path.resolve(location, options.b)
+			pathToCode = path.resolve(location, options.b)
 		}
 
 		if (typeof options.i === "string") {
-			codePath = path.resolve(location, options.b)
+			pathToCode = path.resolve(location, options.b)
 		}
 
 		// Set timestamp of when build was run was last modified
 
-		memory.timestamp = getFileUpdatedDate(codePath)
+		memory.timestamp = getFileUpdatedDate(pathToCode)
 
 
 		// Should increment version number?
@@ -238,20 +259,22 @@ export default function cli(options) {
 
 
 			// Update new version number and inject code
-			fs.writeFile(pathToPkg, newPkg, (err) => {
-				if (err) throw err;
+			fs.writeFile(pathToPkg, newPkg, (e) => {
+				if (e) {
+					console.error(`[plugma] Cannot find ${chalk.inverse('package.json')} file at: ${e.path} \n`)
+				}
 
 				if (options.b || options.build || options.i) {
 					// console.log('Updated version number!');
 					// We need to create a new build first so that version data doesn't get duplicated
 					// function shouldReinject() {
-					// 	return getFileUpdatedDate(codePath).toString() === memory.timestamp.toString()
+					// 	return getFileUpdatedDate(pathToCode).toString() === memory.timestamp.toString()
 					// }
 
 					if (options.i) {
 
 						// Need to make sure not injected when code already been injected
-						injectCode(codePath, memory)
+						injectCode(pathToCode, memory)
 
 					}
 
@@ -266,7 +289,7 @@ export default function cli(options) {
 							}
 							if (stdout) {
 								// console.log(`stdout: ${stdout}`);
-								injectCode(codePath, memory)
+								injectCode(pathToCode, memory)
 							}
 
 						});
