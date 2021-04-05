@@ -2,33 +2,34 @@
  * This scripts appends the current version number to every node created.
  */
 
-// TODO: Warn user if main file can't be found
-// TODO: Warn user if versions file can't be found
+// TODO: Use manifest to store version number and get path for code
+
 const chalk = require('chalk');
 
 const fs = require('fs')
+
 const { exec } = require("child_process");
 const path = require('path')
 
 
-var location
+var root
 
 if (process.env.PWD.endsWith("bin")) {
 	if (process.env.PWD.endsWith(".bin")) {
 
-		location = path.resolve(process.env.PWD + "/../..")
+		root = path.resolve(process.env.PWD + "/../..")
 	}
 	else {
-		location = path.resolve(process.env.PWD + "/../../..")
+		root = path.resolve(process.env.PWD + "/../../..")
 	}
 
 }
 else {
-	location = process.cwd()
+	root = process.cwd()
 }
 
 
-const pkg = require(location + "/package.json")
+const pkg = require(root + "/package.json")
 
 const getFileUpdatedDate = (path) => {
 	var stats;
@@ -44,61 +45,7 @@ const getFileUpdatedDate = (path) => {
 
 }
 
-function injectCode(pathToCode, memory) {
 
-	fs.readFile(pathToCode, "utf8", (err, data) => {
-		// 1. First search for variable with match.
-		// 2. Then search for matches within.
-		if (err) {
-			throw err
-		}
-
-		function getVersionData() {
-			var match = data.match(/^\/\/ pluginVersion=(.+)[\s|\n]*/)
-
-			if (match) {
-				data = data.replace(/^\/\/ pluginVersion=(.+)[\s|\n]*/, "")
-				return match[1]
-			}
-			else {
-				return false
-			}
-		}
-
-		// Don't inject code unless different from current version
-		if (getVersionData() !== pkg.version) {
-
-			// Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
-			if (getFileUpdatedDate(pathToCode).toString() !== memory.timestamp.toString()) {
-				data = `// pluginVersion=${pkg.version}\n` +
-					`figma.clientStorage.setAsync("pluginVersion", ${JSON.stringify(pkg.version)})\n` +
-					`figma.root.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})\n`
-					+ data
-
-				data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
-
-					var matches = []
-					match.replace(/(\w+)\s*=\s*figma\./gmi, (match, p1, p2, p3, offset, string) => {
-						matches.push(p1)
-					})
-
-					matches = matches.map((item) => `${item}.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})`)
-
-					var newString = matches.join(";") + ";"
-
-					return match + newString
-
-				})
-
-				fs.writeFile(pathToCode, data, (err) => {
-					if (err) throw err;
-					// console.log('Version data added');
-				});
-			}
-		}
-
-	})
-}
 
 function updateVersionLog(pathToVersionLog, options) {
 
@@ -182,25 +129,115 @@ function updateVersionLog(pathToVersionLog, options) {
 
 }
 
+async function getManifest() {
+	var array = [
+		path.resolve(root, `manifest.json`),
+		path.resolve(root, 'public', 'manifest.json')
+	]
+
+	var pathToManifest;
+
+	if (fs.existsSync(array[0])) {
+		pathToManifest = array[0]
+	}
+	else if (array[1]) {
+		pathToManifest = array[1]
+	}
+
+	return new Promise((resolve, reject) => {
+		fs.readFile(pathToManifest, 'utf8', function (err, data) {
+			if (err) {
+				reject(err);
+			}
+			resolve(JSON.parse(data));
+		});
+	});
+}
+
 export default function cli(options) {
+	function injectCode(pathToCode, memory) {
+
+		getManifest().then((res) => {
+
+			fs.readFile(path.resolve(root, res.main), "utf8", (err, data) => {
+				// 1. First search for variable with match.
+				// 2. Then search for matches within.
+				if (err) {
+					throw err
+				}
+
+				function getVersionData() {
+					var match = data.match(/^\/\/ pluginVersion=(.+)[\s|\n]*/)
+
+					if (match) {
+						data = data.replace(/^\/\/ pluginVersion=(.+)[\s|\n]*/, "")
+						return match[1]
+					}
+					else {
+						return false
+					}
+				}
+
+				// Don't inject code unless different from current version
+				if (getVersionData() !== pkg.version) {
+
+					// Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
+					if (getFileUpdatedDate(pathToCode).toString() !== memory.timestamp.toString()) {
+						data = `// pluginVersion=${pkg.version}\n` +
+							`figma.clientStorage.setAsync("pluginVersion", ${JSON.stringify(pkg.version)})\n` +
+							`figma.root.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})\n`
+							+ data
+
+						data = data.replace(/((?:const|var|let)\s*\w+\s*=\s*figma\.create\w+\D+(?:;|\n))/gmi, (match, p1, p2, p3, offset, string) => {
+
+							var matches = []
+							match.replace(/(\w+)\s*=\s*figma\./gmi, (match, p1, p2, p3, offset, string) => {
+								matches.push(p1)
+							})
+
+							matches = matches.map((item) => `${item}.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})`)
+
+							var newString = matches.join(";") + ";"
+
+							return match + newString
+
+						})
+
+						fs.writeFile(pathToCode, data, (err) => {
+							if (err) throw err;
+							// console.log('Version data added');
+						});
+					}
+				}
+
+			})
+		})
+
+	}
+
 	if (options._[0] === "version") {
 		var pathToMemory = __dirname + "/../bin/memory.json"
-		var pathToVersionLog = location + "/.plugma/versions.json"
-		var pathToPkg = location + "/package.json"
-		var memory = require(pathToMemory)
+		var pathToVersionLog = root + "/.plugma/versions.json"
+		var pathToPkg = root + "/package.json"
 
-		var pathToCode = location + "/code.js"
+
+		var pathToCode = root + "/code.js"
 
 		if (typeof options.b === "string") {
-			pathToCode = path.resolve(location, options.b)
+			pathToCode = path.resolve(root, options.b)
 		}
 
 		if (typeof options.i === "string") {
-			pathToCode = path.resolve(location, options.b)
+			pathToCode = path.resolve(root, options.b)
 		}
 
-		// Set timestamp of when build was run was last modified
 
+
+
+
+
+		// Set timestamp of when build was run was last modified
+		var memory = require(pathToMemory)
 		memory.timestamp = getFileUpdatedDate(pathToCode)
 
 
@@ -228,8 +265,6 @@ export default function cli(options) {
 			if (err) throw err;
 
 		});
-
-		// if (memory.timestamp !== getFileUpdatedDate(location + "/code.js"))
 
 
 		// We check to see if the CLI was used to incremenet version, because if it was we don't want to increment it before being published
@@ -279,7 +314,7 @@ export default function cli(options) {
 					}
 
 					else if (options.b || options.build) {
-						exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${location} build`, (error, stdout, stderr) => {
+						exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${root} build`, (error, stdout, stderr) => {
 							if (error) {
 								console.log(`error: ${error.message}`);
 								return;
