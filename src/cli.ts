@@ -31,11 +31,14 @@ else {
 
 const pkg = require(root + "/package.json")
 
-const getFileUpdatedDate = (path) => {
+async function getFileUpdatedDate() {
+
+	var manifest = await getManifest()
+
 	var stats;
 
 	try {
-		stats = fs.statSync(path)
+		stats = fs.statSync(path.resolve(root, manifest.main))
 	}
 	catch (e) {
 		console.error(`[plugma] Cannot find ${chalk.inverse('main')} file at: ${e.path} \n`)
@@ -140,7 +143,7 @@ async function getManifest() {
 	if (fs.existsSync(array[0])) {
 		pathToManifest = array[0]
 	}
-	else if (array[1]) {
+	else if (fs.existsSync(array[1])) {
 		pathToManifest = array[1]
 	}
 
@@ -155,11 +158,12 @@ async function getManifest() {
 }
 
 export default function cli(options) {
-	function injectCode(pathToCode, memory) {
+	function injectCode(memory) {
 
 		getManifest().then((res) => {
+			var pathToCode = path.resolve(root, res.main)
 
-			fs.readFile(path.resolve(root, res.main), "utf8", (err, data) => {
+			fs.readFile(pathToCode, "utf8", (err, data) => {
 				// 1. First search for variable with match.
 				// 2. Then search for matches within.
 				if (err) {
@@ -182,7 +186,7 @@ export default function cli(options) {
 				if (getVersionData() !== pkg.version) {
 
 					// Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
-					if (getFileUpdatedDate(pathToCode).toString() !== memory.timestamp.toString()) {
+					if (getFileUpdatedDate().toString() !== memory.timestamp.toString()) {
 						data = `// pluginVersion=${pkg.version}\n` +
 							`figma.clientStorage.setAsync("pluginVersion", ${JSON.stringify(pkg.version)})\n` +
 							`figma.root.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})\n`
@@ -223,22 +227,10 @@ export default function cli(options) {
 
 		var pathToCode = root + "/code.js"
 
-		if (typeof options.b === "string") {
-			pathToCode = path.resolve(root, options.b)
-		}
-
-		if (typeof options.i === "string") {
-			pathToCode = path.resolve(root, options.b)
-		}
-
-
-
-
-
 
 		// Set timestamp of when build was run was last modified
 		var memory = require(pathToMemory)
-		memory.timestamp = getFileUpdatedDate(pathToCode)
+		memory.timestamp = getFileUpdatedDate()
 
 
 		// Should increment version number?
@@ -303,13 +295,13 @@ export default function cli(options) {
 					// console.log('Updated version number!');
 					// We need to create a new build first so that version data doesn't get duplicated
 					// function shouldReinject() {
-					// 	return getFileUpdatedDate(pathToCode).toString() === memory.timestamp.toString()
+					// 	return getFileUpdatedDate().toString() === memory.timestamp.toString()
 					// }
 
 					if (options.i) {
 
 						// Need to make sure not injected when code already been injected
-						injectCode(pathToCode, memory)
+						injectCode(memory)
 
 					}
 
@@ -324,7 +316,7 @@ export default function cli(options) {
 							}
 							if (stdout) {
 								// console.log(`stdout: ${stdout}`);
-								injectCode(pathToCode, memory)
+								injectCode(memory)
 							}
 
 						});

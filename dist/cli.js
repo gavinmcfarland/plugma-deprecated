@@ -21,16 +21,17 @@ else {
     root = process.cwd();
 }
 const pkg = require(root + "/package.json");
-const getFileUpdatedDate = (path) => {
+async function getFileUpdatedDate() {
+    var manifest = await getManifest();
     var stats;
     try {
-        stats = fs.statSync(path);
+        stats = fs.statSync(path.resolve(root, manifest.main));
     }
     catch (e) {
         console.error(`[plugma] Cannot find ${chalk.inverse('main')} file at: ${e.path} \n`);
     }
     return stats.mtime;
-};
+}
 function updateVersionLog(pathToVersionLog, options) {
     if (options.name !== '') {
         var pathToTemporyFile = __dirname + "/../bin/message.md";
@@ -98,7 +99,7 @@ async function getManifest() {
     if (fs.existsSync(array[0])) {
         pathToManifest = array[0];
     }
-    else if (array[1]) {
+    else if (fs.existsSync(array[1])) {
         pathToManifest = array[1];
     }
     return new Promise((resolve, reject) => {
@@ -111,9 +112,10 @@ async function getManifest() {
     });
 }
 function cli(options) {
-    function injectCode(pathToCode, memory) {
+    function injectCode(memory) {
         getManifest().then((res) => {
-            fs.readFile(path.resolve(root, res.main), "utf8", (err, data) => {
+            var pathToCode = path.resolve(root, res.main);
+            fs.readFile(pathToCode, "utf8", (err, data) => {
                 // 1. First search for variable with match.
                 // 2. Then search for matches within.
                 if (err) {
@@ -132,7 +134,7 @@ function cli(options) {
                 // Don't inject code unless different from current version
                 if (getVersionData() !== pkg.version) {
                     // Perform a saftey check incase file has not been rebuilt. Want to avoid adding duplicated verison numbers
-                    if (getFileUpdatedDate(pathToCode).toString() !== memory.timestamp.toString()) {
+                    if (getFileUpdatedDate().toString() !== memory.timestamp.toString()) {
                         data = `// pluginVersion=${pkg.version}\n` +
                             `figma.clientStorage.setAsync("pluginVersion", ${JSON.stringify(pkg.version)})\n` +
                             `figma.root.setSharedPluginData(${JSON.stringify(pkg.name)}, "pluginVersion", ${JSON.stringify(pkg.version)})\n`
@@ -160,16 +162,9 @@ function cli(options) {
         var pathToMemory = __dirname + "/../bin/memory.json";
         var pathToVersionLog = root + "/.plugma/versions.json";
         var pathToPkg = root + "/package.json";
-        var pathToCode = root + "/code.js";
-        if (typeof options.b === "string") {
-            pathToCode = path.resolve(root, options.b);
-        }
-        if (typeof options.i === "string") {
-            pathToCode = path.resolve(root, options.b);
-        }
         // Set timestamp of when build was run was last modified
         var memory = require(pathToMemory);
-        memory.timestamp = getFileUpdatedDate(pathToCode);
+        memory.timestamp = getFileUpdatedDate();
         // Should increment version number?
         var shouldIncrementVersion = false;
         if (memory.lastIncrementedWithManifest
@@ -217,11 +212,11 @@ function cli(options) {
                     // console.log('Updated version number!');
                     // We need to create a new build first so that version data doesn't get duplicated
                     // function shouldReinject() {
-                    // 	return getFileUpdatedDate(pathToCode).toString() === memory.timestamp.toString()
+                    // 	return getFileUpdatedDate().toString() === memory.timestamp.toString()
                     // }
                     if (options.i) {
                         // Need to make sure not injected when code already been injected
-                        injectCode(pathToCode, memory);
+                        injectCode(memory);
                     }
                     else if (options.b || options.build) {
                         exec(`export PATH="$PATH:"/usr/local/bin/ && npm run --prefix ${root} build`, (error, stdout, stderr) => {
@@ -231,7 +226,7 @@ function cli(options) {
                             }
                             if (stdout) {
                                 // console.log(`stdout: ${stdout}`);
-                                injectCode(pathToCode, memory);
+                                injectCode(memory);
                             }
                         });
                     }

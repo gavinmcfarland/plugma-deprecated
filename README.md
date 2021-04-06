@@ -103,7 +103,7 @@ plugma version [patch|minor|major] -m "New feature"
 
 #### Injecting Data
 
-Using the `-i` or `-b` flag, Plugma will inject plugin verison data into the plugin's compiled `code.js` file so you can target documents and nodes created by past versions of your plugin.
+Using the `-i` or `-b` flag, Plugma will inject plugin verison data into the compiled `main` code defined in your manifest. so you can target documents and nodes created by past versions of your plugin.
 
 ```bash
 plugma version -b
@@ -115,13 +115,9 @@ This includes:
 - `figma.root.setSharedPluginData()`
 - `node.setSharedPluginData()`
 
-#### Setting `code.js` path
+## Manifest.json
 
-By default Plugma looks for a `code.js` file in the root of your project. Set a different path by passing a value after the `-i` or `-b` flag.
-
-```bash
-plugma version patch -b ./public/code.js
-```
+Plugma will look for a manifest file located at either `./` or `./public`.
 
 ## Installation
 

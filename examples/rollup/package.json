@@ -1,6 +1,6 @@
 {
 	"name": "plugma-rollup",
-	"version": "2.0.12",
+	"version": "2.0.17",
 	"description": "Your Figma plugin",
 	"main": "code.ts",
 	"scripts": {
