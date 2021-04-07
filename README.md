@@ -115,7 +115,7 @@ This includes:
 - `figma.root.setSharedPluginData()`
 - `node.setSharedPluginData()`
 
-## Manifest.json
+#### Manifest.json
 
 Plugma will look for a manifest file located at either `./` or `./public`.
 
