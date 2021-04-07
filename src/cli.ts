@@ -220,12 +220,9 @@ export default function cli(options) {
 	}
 
 	if (options._[0] === "version") {
-		var pathToMemory = __dirname + "/../bin/memory.json"
-		var pathToVersionLog = root + "/.plugma/versions.json"
-		var pathToPkg = root + "/package.json"
-
-
-		var pathToCode = root + "/code.js"
+		var pathToMemory = path.resolve(__dirname, '../bin/memory.json')
+		var pathToVersionLog = path.resolve(root, '.plugma', 'versions.json')
+		var pathToPkg = path.resolve(root, 'package.json')
 
 
 		// Set timestamp of when build was run was last modified
