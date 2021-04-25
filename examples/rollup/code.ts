@@ -14,7 +14,11 @@ plugma((plugin) => {
 		ui.show(data)
 
 		plugin.on('create-rectangles', (msg) => {
-
+			figma.clientStorage.getAsync('what').then((res) => {
+				console.log("success2")
+			}).catch((res) => {
+				console.log("failing2")
+			})
 			const nodes: SceneNode[] = [];
 			for (let i = 0; i < msg.count; i++) {
 				const rect = figma.createRectangle();
@@ -31,6 +35,11 @@ plugma((plugin) => {
 		})
 
 		plugin.on('cancel', () => {
+			figma.clientStorage.getAsync('what').then((res) => {
+				console.log("success")
+			}).catch((res) => {
+				console.log("failing")
+			})
 			figma.closePlugin();
 		})
 	})
