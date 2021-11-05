@@ -103,7 +103,7 @@ plugma version [patch|minor|major] -m "New feature"
 
 #### Injecting Data
 
-Using the `-i` or `-b` flag, Plugma will inject plugin verison data into the compiled `main` code defined in your manifest. so you can target documents and nodes created by past versions of your plugin.
+Using the `-i` or `-b` flag, Plugma will inject plugin verison data into the compiled `main` code defined in your manifest. Allowing you to target documents and nodes created by past versions of your plugin.
 
 ```bash
 plugma version -b
