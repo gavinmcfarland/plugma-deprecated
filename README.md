@@ -67,7 +67,7 @@ The framework provides a `plugin` reference which gives you the state of the plu
 // plugin properties
 
 plugin.ui {
-    html: __html,
+    html: __html__,
     width: 250,
     height: 500
 }
